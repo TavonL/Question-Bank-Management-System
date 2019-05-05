@@ -1,2 +1,16 @@
-# Question-Bank-Management-System
-课程项目作业
+# 试题库管理系统
+基于nodejs的试题库管理系统
+
+## 开始
+
+### 使用前准备
+
+- 缺啥装啥
+
+## 使用
+
+文件目录下
+
+```shell
+npm run dev
+```
