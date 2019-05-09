@@ -25,11 +25,11 @@
       <el-menu-item index="2-2">高中试题</el-menu-item>
       <el-menu-item index="2-3">大学试题</el-menu-item>
     </el-submenu>
-    <el-menu-item index="3">浏览历史</el-menu-item>
+    <el-menu-item index="3">我的收藏</el-menu-item>
     <el-menu-item index="4">上传试题</el-menu-item>
     <el-menu-item index="5">自由组卷</el-menu-item>
     <el-menu-item index="6">个人信息</el-menu-item>
-    <el-menu-item index="7" disabled="1">管理员后台</el-menu-item>
+    <el-menu-item index="7" disabled>管理员后台</el-menu-item>
     </el-menu>
   </div></el-col>
   </el-row>

@@ -4,7 +4,7 @@ import HelloWorld from '@/components/HelloWorld';
 import Login from '@/components/Login';
 import QuestionBank from '@/components/QuestionBank';
 import PersonalInfo from '@/components/PersonalInfo';
-
+import QuestionUpload from '@/components/QuestionUpload'
 Vue.use(Router);
 
 export default new Router({
@@ -31,8 +31,8 @@ export default new Router({
         },
         {
             path: '/4',
-            component: QuestionBank,
-            name: 'QuestionBank'
+            component: QuestionUpload,
+            name: 'QuestionUpload'
         },
         {
             path: '/5',

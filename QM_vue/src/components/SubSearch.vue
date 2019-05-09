@@ -21,7 +21,7 @@
       <el-col :span="1">
       <el-select v-model="value" placeholder="请选择" >
       <el-option
-        v-for="item in options"
+        v-for="item in optionsSubject"
         :key="item.value"
         :label="item.label"
         :value="item.value">
@@ -30,10 +30,14 @@
     </el-col>
     </el-form-item>
     <el-form-item label="知识点" style="text-align:left">
-      <el-checkbox-group v-model="sizeForm.type">
-        <el-checkbox-button label="应该" name="type"></el-checkbox-button>
-        <el-checkbox-button label="自动" name="type"></el-checkbox-button>
-        <el-checkbox-button label="更新" name="type"></el-checkbox-button>
+      <el-cascader
+        v-model="sizeForm.point"
+        placehoder="请选择"
+        :options="options"
+        filterable
+        :show-all-levels="false"
+        change-on-select
+      ></el-cascader>
     </el-checkbox-group>
     </el-form-item>
     <el-form-item label="题型" style="text-align:left">
@@ -73,7 +77,7 @@
           desc: '',
           grade: '2'
         },
-        options: [{
+        optionsSubject: [{
           value: '1',
           label: '数学'
         }, {
@@ -92,9 +96,20 @@
           value: '6',
           label: '不限'
         }],
-        value: '6'
-      };
-    },
+        value: '6',
+        options: [{
+            value: '0',
+            label: '应该',
+            children: [{
+              value: '1',
+              label: '自动'
+              }]
+            },{
+            value:'2',
+            label: '产生'
+          }],
+    };
+  },
     methods: {
       submitForm(formName) {
         this.$refs[formName].validate((valid) => {
