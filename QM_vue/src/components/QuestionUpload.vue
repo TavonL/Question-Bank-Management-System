@@ -8,6 +8,10 @@
     <el-step title="步骤 4" description="上传试卷"></el-step>
     </el-steps>
   </el-card>
+  <el-dialog title="编辑/预览" :visible.sync="editorVisible" >
+  <Editor v-if="editorType=='C'" :content="curDomain.question_content" @new="updateContent"></Editor>
+  <Editor v-if="editorType=='A'" :content="curDomain.question_analy" @new="updateContent"></Editor>
+  </el-dialog>
   <el-card class="frame" shadow="never" v-if="curStep==1">
     <el-form :model="paperBasicForm" ref="paperBasicForm" label-width="100px" class="form" >
     <el-form-item
@@ -99,7 +103,7 @@
       :prop="'domains.' + index + '.value'"
     > 
       <el-row>
-      <el-col :span="12">
+      <el-col :span="16">
         <el-cascader size="medium"
           class="cascader"
           v-model="domain.question_point"
@@ -109,7 +113,7 @@
           :show-all-levels="false"
           change-on-select
         ></el-cascader>
-        <el-select class="el-select" v-model="domain.question_type" placeholder="请选择该题题型" size="medium">
+        <el-select class="select" v-model="domain.question_type" placeholder="请选择该题题型" size="medium">
           <el-option
             v-for="item in typeOptions"
             :key="item.value"
@@ -121,16 +125,36 @@
         <el-input 
           class="textarea"
           type="textarea"
-          :autosize="{ minRows: 4, maxRows: 7}"
-          placeholder="此处为题干"
+          :autosize="{ minRows: 4, maxRows: 15}"
+          placeholder="请输入题干"
           v-model="domain.question_content">
         </el-input>
-
         <br>
-        <el-button size="small" type="primary" @click.prevent="insert(domain)">编辑/预览</el-button>
-        <el-button size="small" @click.prevent="removeDomain(domain)">删除</el-button>
+        <el-button size="small" type="primary" @click.prevent="openEditor(domain,'C')">编辑/预览题干</el-button>
+        <AnswerEditor :type="domain.question_type" @newAnswer="updateAnswer($event, domain)"></AnswerEditor>
+        <el-input 
+          class="textarea"
+          type="textarea"
+          :autosize="{ minRows: 4, maxRows: 15}"
+          placeholder="请输入解析"
+          v-model="domain.question_analy">
+        </el-input>
+        <br>
+        <el-button size="small" type="primary" @click.prevent="openEditor(domain, 'A')">编辑/预览解析</el-button>
+        <br>
+        <el-popover
+          placement="top"
+          width="160"
+          v-model="domain.confirmVisible">
+          <p>确定删除该题吗？</p>
+          <div style="text-align: right; margin: 0">
+            <el-button size="mini" type="text" @click.prevent="removeDomain(domain)">确定</el-button>
+            <el-button type="primary" size="mini" @click="domain.confirmVisible = false">取消</el-button>
+          </div>
+        <el-button slot="reference" size="small">删除该题</el-button>
+        </el-popover>
       </el-col>
-      <el-col :span="8" >
+<!--       <el-col :span="8" >
         <el-upload
           class="avatar-uploader"
           action="https://jsonplaceholder.typicode.com/posts/"
@@ -140,7 +164,7 @@
           <img v-if="imageUrl" :src="imageUrl" class="avatar">
           <i v-else class="el-icon-plus avatar-uploader-icon"></i>
         </el-upload>
-      </el-col>
+      </el-col> -->
     </el-row>
     </el-form-item>
     <el-form-item>
@@ -153,17 +177,33 @@
     </el-form-item>
     </el-form>
   </el-card>
+  <el-card class="frame" shadow="never" v-if="curStep==3">
+    <span>预览部件</span>
+    <el-button type="default" @click="prevStep">上一步</el-button>
+    <el-button type="primary" @click="nextStep">下一步</el-button> 
+  </el-card>
+  <el-card class="frame" shadow="never" v-if="curStep==4">
+    <span>上传下载部分</span>
+    <el-button type="default" @click="prevStep">上一步</el-button>
+    <el-button type="primary">提交</el-button>
+  </el-card>
   </div>
 </template>
 <script>
- export default {
+  import Editor from '@/components/Editor';
+  import AnswerEditor from '@/components/AnswerEditor';
+  export default {
+    components:{Editor, AnswerEditor},
     data() {
       return {
         paperForm: {
           domains: [{
             question_content: '',
             question_type: '',
-            question_point: ''
+            question_point: [],
+            question_answer: '',
+            question_analy: '',
+            confirmVisible: '',
           }],
         },
         paperBasicForm: {
@@ -234,13 +274,26 @@
             label: '产生'
           }],
         typeOptions:[{
-          value: 0,
-          label:'也应该'
-        },{
           value: 1,
-          label:'自动生成'
+          label:'填空题'
+        },{
+          value: 2,
+          label:'单选题'
+        },{
+          value:3, 
+          label: '多选题'
+        },{
+          value: 4,
+          label:'应用题'
+        },{
+          value: 5,
+          label:'综合题'
         }],
-        imageUrl: ''
+        imageUrl: '',
+        editorVisible: false,
+        editorType: '',
+        curDomain: {},
+        curContent:'',
     }
   },
     computed:{
@@ -276,6 +329,7 @@
           this.curStep -= 1;
       },
       removeDomain(item) {
+        item.confirmVisible = false;
         let index = this.paperForm.domains.indexOf(item);
         if (index !== -1) {
           this.paperForm.domains.splice(index, 1)
@@ -283,10 +337,14 @@
       },
       addDomain() {
         this.paperForm.domains.push({
-          question_content: '',
           key: Date.now(),
+          question_content: '',
           question_type: '',
-          question_point: []
+          question_point: [],
+          question_answer: '',
+          question_analy: '',
+          confirmVisible: '',
+          child: [],
         });
       },
       handleAvatarSuccess(res, file) {
@@ -304,11 +362,30 @@
         }
         return isJPG && isLt2M;
       },
+      openEditor(domain, type){
+        this.curDomain = domain;
+        this.editorVisible = true;
+        this.editorType = type;
+      },
+      updateContent(newContent){
+        console.log(this.editorType, newContent);
+        if (this.editorType == 'C'){
+          this.curDomain.question_content = newContent;
+        }
+        else if (this.editorType == 'A'){
+          this.curDomain.question_analy = newContent;
+        }
+      },
+      updateAnswer($event, domain){
+        domain.question_answer = $event;
+        console.log('newAnswer', domain.question_answer);
+      }
+
   }
 }
 
 </script>
-<style>
+<style scoped>
 .frame{
   margin-top:2%;
   width:80%;
@@ -341,8 +418,8 @@
   margin-left: 1%;
   margin-right: 0.5%;
 }
-.el-select .el-input {
-  width: 100%;
+.el-select .el-input__inner {
+  width: 360px;
 }
 .avatar-uploader .el-upload {
   border: 1px dashed #d9d9d9;
@@ -355,15 +432,17 @@
   border-color: #409EFF;
 }
 .avatar-uploader-icon {
+  border: 1px dashed #d9d9d9;
+  border-radius: 6px;
   font-size: 28px;
   color: #8c939d;
-  width: 278px;
+  width: 178px;
   height: 178px;
   line-height: 178px;
   text-align: center;
 }
 .avatar {
-  width: 278px;
+  width: 178px;
   height: 178px;
   display: block;
 }

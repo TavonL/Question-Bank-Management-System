@@ -6,7 +6,10 @@ import router from './router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'font-awesome/css/font-awesome.min.css';
-
+import mavonEditor from 'mavon-editor'
+import 'mavon-editor/dist/css/index.css'
+import '@/assets/iconfont.css'
+Vue.use(mavonEditor)
 Vue.use(ElementUI);
 Vue.config.productionTip = false;
 

@@ -19,7 +19,7 @@
     </el-form-item>
     <el-form-item label="学科">
       <el-col :span="1">
-      <el-select v-model="value" placeholder="请选择" >
+      <el-select v-model="value" placeholder="请选择" class="el-select">
       <el-option
         v-for="item in optionsSubject"
         :key="item.value"
@@ -132,5 +132,11 @@
 <style>
   .input-with-select .el-input-group__append {
     background-color: #fff;
+  }
+  .input {
+    width: 80%;
+  }
+  .el-select .el-input{
+    width: 120px;
   }
 </style>

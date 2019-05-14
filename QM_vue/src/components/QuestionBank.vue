@@ -2,9 +2,7 @@
   <div>
     <!-- <p>test</p> -->
     <SubSearch></SubSearch>
-    <el-row>
-    <el-col :span="24" class="block">  <div>
-    <div class="block">
+    <div class="block pagination">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -14,9 +12,6 @@
         :total="1000">
       </el-pagination>
     </div>
-    </div>
-    </el-col>
-    </el-row>
     <el-row gutter="10" v-for="o, i in row" :key="o" style="padding-top:20px">
     <el-col :span="2"><div><p></p></div></el-col>
     <el-col :span="5" v-for="o, i in col" :key="o">
@@ -37,9 +32,7 @@
     </el-col>
     <el-col :span="2"><div><p></p></div></el-col>
     </el-row>
-    <el-row>
-    <el-col :span="24" class="block">  <div>
-    <div class="block">
+    <div class="block pagination">
       <el-pagination
         @size-change="handleSizeChange"
         @current-change="handleCurrentChange"
@@ -49,9 +42,6 @@
         :total="1000">
       </el-pagination>
     </div>
-    </div>
-    </el-col>
-    </el-row>
   </div>
 </template>
 
@@ -82,10 +72,15 @@ export default {
 };
 </script>
 
-<style>
+<style scoped>
+  .pagination{
+    margin-left: auto;
+    margin-right: auto;
+    text-align: center;
+  }
   .text {
     font-size: 16px;
-    align-content: center;
+    text-align: center;
   }
 
   .item {

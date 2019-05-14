@@ -60,7 +60,7 @@ export default {
 }
 
 </script>
-<style scope>
+<style scoped>
 .adjust{
   margin-top: 0px
 }

@@ -111,7 +111,7 @@
     }
   }
 </script>
-<style>
+<style scoped>
 .username{
     margin-top:5%;
     width:30%;

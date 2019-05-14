@@ -4,7 +4,8 @@
 
 <script>
 export default {
-  name: 'HelloWorld',
+  name: 'QuestionPreview',
+  props: ['questions'],
   data () {
     return {
       msg: 'Welcome to Your Vue.js App'
