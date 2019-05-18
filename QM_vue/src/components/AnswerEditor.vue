@@ -1,7 +1,4 @@
 <template>
-
-
-
 <div class="block" v-if="curType == ''">
   答案：
   <el-input class="input" type="text" disabled placeholder="请先选择题型"/>
@@ -13,7 +10,7 @@
     第 {{index + 1}} 空答案：
     <el-input v-model="blank.value" class="input" type="text" plackholder="请输入答案" @change="updateBlankAnswer">
     </el-input>
-    <el-button class="button" size="small" @click.prevent="delItem(blank, blankAnswers)" >删除该空</el-button>
+    <el-button type="danger" class="button" size="small" @click.prevent="delItem(blank, blankAnswers)" >删除该空</el-button>
   </div>
 
   <el-button class="button" type="primary" size="small" @click.prevent="newBlank">新增空</el-button>
@@ -76,6 +73,7 @@
         :value="item.value">
       </el-option>
     </el-select>
+    <el-button type="danger" class="button" size="small" @click.prevent="delItem(qst, subQuestions)" >删除该小题</el-button>
     <el-input 
     class="textarea"
     type="textarea"
@@ -86,8 +84,8 @@
   </el-input>
   <br>
   <el-button size="small" class="button" type="primary" @click.prevent="openSubEditor(qst)">编辑/预览小题题干</el-button>
-  <AnswerEditor :type="qst.question_type" @newAnswer="updateSubAnswer($event, qst)"></AnswerEditor>
-  <el-button class="button" size="small" @click.prevent="delItem(qst, subQuestions)" >删除该小题</el-button>
+  <AnswerEditor :type="qst.question_type" :answer="qst.question_answer" @newAnswer="updateSubAnswer($event, qst)"></AnswerEditor>
+  
   </div>
   <el-button class="button" type="primary" size="small" @click.prevent="newSubQuestion">新增小题</el-button>
 </div>
@@ -103,7 +101,7 @@
 import Editor from '@/components/Editor'
 export default {
   name: 'AnswerEditor',
-  props: ['type'],
+  props: ['type','answer'],
   components: {Editor},
   data () {
     return {
@@ -138,13 +136,6 @@ export default {
     }
   },
   computed:{
-    finBlankAnwer: function(){
-      let res = '';
-      for (let i=0; i < this.blankAnswers.length; i++){
-        res += this.blankAnswers[i].value + ' ';
-      }
-      return res;
-    },
   },
   methods: {
     newBlank() {
@@ -171,7 +162,7 @@ export default {
       this.subEditorVisible = true;
     },
     updateBlankAnswer() {
-      this.$emit('newAnswer', this.finBlankAnwer);
+      this.$emit('newAnswer', this.blankAnswers);
     },
     updateRadioAnswer1() {
       this.radioAnswer2 = '';
@@ -182,7 +173,7 @@ export default {
       this.$emit('newAnswer', this.radioAnswer2);
     },
     updateMultiRadioAnswer() {
-      this.$emit('newAnswer', this.multiRadioAnswer1.join(' ') + ' ' + this.multiRadioAnswer2);
+      this.$emit('newAnswer', [this.multiRadioAnswer1, this.multiRadioAnswer2]);
     },
     updateWordAnswer(newAnswer){
       this.wordAnswer = newAnswer;
@@ -197,14 +188,45 @@ export default {
     updateSubAnswer($event, question){
       question.question_answer = $event;
       this.$emit('newAnswer', this.subQuestions)
-      console.log(this.subQuestions);
+      // console.log(this.subQuestions);
     }
   },
   watch: {
     type: {
       immediate: true,
       handler(type) {
+        // console.log(type);
         this.curType = type;
+      }
+    },
+    answer: {
+      immediate: true,
+      handler(answer) {
+        // console.log('curAnswer', answer);
+        if (answer == ''){
+          return;
+        }
+        if (this.curType == 1){
+          this.blankAnswers = answer;
+        }
+        else if (this.curType == 2){
+          if ('A' <= answer && answer <= 'D'){
+            this.radioAnswer1 = answer;
+          }
+          else{
+            this.radioAnswer2 = answer;
+          }
+        }
+        else if (this.curType == 3){
+          this.multiRadioAnswer1 = answer[0];
+          this.multiRadioAnswer2 = answer[1];
+        }
+        else if (this.curType == 4){
+          this.wordAnswer = answer;
+        }
+        else if (this.curType == 5){
+          this.subQuestions = answer;
+        }
       }
     }
   }

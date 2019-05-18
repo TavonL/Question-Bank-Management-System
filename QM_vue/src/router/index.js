@@ -4,7 +4,9 @@ import HelloWorld from '@/components/HelloWorld';
 import Login from '@/components/Login';
 import QuestionBank from '@/components/QuestionBank';
 import PersonalInfo from '@/components/PersonalInfo';
-import QuestionUpload from '@/components/QuestionUpload'
+import QuestionUpload from '@/components/QuestionUpload';
+import PaperPreview from '@/components/PaperPreview';
+
 Vue.use(Router);
 
 export default new Router({
@@ -48,6 +50,11 @@ export default new Router({
             path: '/7',
             component: QuestionBank,
             name: 'QuestionBank'
+        },
+        {
+            path: '/paperPreview',
+            component: PaperPreview,
+            name: 'PaperPreview',
         },
     ]
 });

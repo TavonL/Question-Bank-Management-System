@@ -1,19 +1,19 @@
 <template>
   <div>
+  <MainIndex activeIndex="4"></MainIndex>
   <el-card shadow="never" class="frame">
     <el-steps :active="curStep">
     <el-step title="步骤 1" description="基本信息"></el-step>
     <el-step title="步骤 2" description="编辑题目"></el-step>
-    <el-step title="步骤 3" description="预览试卷"></el-step>
-    <el-step title="步骤 4" description="上传试卷"></el-step>
+    <el-step title="步骤 3" description="预览上传"></el-step>
     </el-steps>
   </el-card>
   <el-dialog title="编辑/预览" :visible.sync="editorVisible" >
-  <Editor v-if="editorType=='C'" :content="curDomain.question_content" @new="updateContent"></Editor>
-  <Editor v-if="editorType=='A'" :content="curDomain.question_analy" @new="updateContent"></Editor>
+  <Editor v-if="editorType=='C'" :content="curQuestion.question_content" @new="updateContent"></Editor>
+  <Editor v-if="editorType=='A'" :content="curQuestion.question_analy" @new="updateContent"></Editor>
   </el-dialog>
   <el-card class="frame" shadow="never" v-if="curStep==1">
-    <el-form :model="paperBasicForm" ref="paperBasicForm" label-width="100px" class="form" >
+    <el-form :model="paperInfoForm" ref="paperInfoForm" label-width="100px" class="form" >
     <el-form-item
       prop="paper_source"
       label="试卷来源"
@@ -22,7 +22,7 @@
       }"
     >
     <el-cascader
-      v-model="paperBasicForm.paper_source"
+      v-model="paperInfoForm.paper_source"
       class="cascader"
       placeholder="请选择试卷所属的市/区/学校"
       :options="sourceOptions"
@@ -40,7 +40,7 @@
     >
     <el-date-picker
       value-format="yyyy"
-      v-model="paperBasicForm.paper_year"
+      v-model="paperInfoForm.paper_year"
       type="year"
       placeholder="选择年">
     </el-date-picker>
@@ -49,13 +49,12 @@
     <el-form-item
       prop="paper_grade"
       label="试卷年级"
-
       :rules="{
         required: true, message: '必须选择试卷对应的年级', trigger: 'blur'
       }"
     >
     <el-cascader
-      v-model="paperBasicForm.paper_grade"
+      v-model="paperInfoForm.paper_grade"
       placeholder="请选择试卷对应的年级"
       :options="gradeOptions"
       filterable
@@ -71,7 +70,7 @@
     >
       <el-cascader 
       ref="cascaderSubject"
-      v-model="paperBasicForm.paper_subject" 
+      v-model="paperInfoForm.paper_subject" 
       :disabled="subjectDisabled" 
       :placeholder="subjectHint"
       :options="subjectOptions" 
@@ -81,39 +80,64 @@
       prop="paper_suffix"
       label="试卷名"
     >
-    <el-input class="input" placeholder="可选填，如期末/统考" v-model="paperBasicForm.paper_suffix">
+    <el-input class="input" placeholder="可选填，如期末/统考" v-model="paperInfoForm.paper_suffix">
       <template slot="prepend"> {{paper_prefix}} </template>
       <template slot="append"> 卷</template>
     </el-input>
     </el-form-item>
     <el-form-item>
     </el-form-item>
-
-    <el-form-item>
-      <el-button type="primary" @click="nextStep">下一步</el-button>
-    </el-form-item>
   </el-form>
+  <div class="next">
+    <el-button type="primary" @click="nextStep">下一步</el-button>
+  </div>
+    
   </el-card>
   <el-card class="frame" shadow="never" v-if="curStep==2">
-    <el-form :model="paperForm" ref="paperForm" label-width="100px" class="form" >
+    <el-form :model="questionsForm" ref="questionsForm" label-width="130px" class="form" >
       <el-form-item
-      v-for="(domain, index) in paperForm.domains"
-      :label="'第' + (index+1) + '题'"
-      :key="domain.key"
-      :prop="'domains.' + index + '.value'"
+      v-for="(question, index) in questionsForm.questions"
+      :key="question.key"
+      :prop="'questions.' + index + '.value'"
     > 
+      <template slot="label"> 
+        第 {{index+1}} 题 
+        <el-popover
+          placement="top"
+          width="160"
+          v-model="question.confirmVisible">
+          <p>确定删除该题吗？</p>
+          <div style="text-align: right; margin: 0">
+            <el-button size="mini" type="text" @click.prevent="removeQuestion(question)">确定</el-button>
+            <el-button type="primary" size="mini" @click="question.confirmVisible = false">取消</el-button>
+          </div>
+          <!-- <el-button type="danger" icon="el-icon-delete" circle slot="reference" size="mini"></el-button> -->
+          <el-button class="delete"  type="danger" slot="reference" size="mini">删除</el-button>
+        </el-popover>
+      </template>
       <el-row>
       <el-col :span="16">
+        <div >
+          <el-rate class="rate"
+            v-model="question.question_diff"
+            :colors="rate.colors"
+            :high-threshold="3"
+            :low-threshold="1"
+            :max="3"
+            show-text
+            :texts="rate.texts"
+            >
+          </el-rate>
+        </div>
         <el-cascader size="medium"
           class="cascader"
-          v-model="domain.question_point"
+          v-model="question.question_point"
           placeholder="请选择该题知识点"
           :options="pointOptions"
           filterable
-          :show-all-levels="false"
           change-on-select
         ></el-cascader>
-        <el-select class="select" v-model="domain.question_type" placeholder="请选择该题题型" size="medium">
+        <el-select class="select" v-model="question.question_type" placeholder="请选择该题题型" size="medium">
           <el-option
             v-for="item in typeOptions"
             :key="item.value"
@@ -127,90 +151,71 @@
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 15}"
           placeholder="请输入题干"
-          v-model="domain.question_content">
+          v-model="question.question_content">
         </el-input>
         <br>
-        <el-button size="small" type="primary" @click.prevent="openEditor(domain,'C')">编辑/预览题干</el-button>
-        <AnswerEditor :type="domain.question_type" @newAnswer="updateAnswer($event, domain)"></AnswerEditor>
+        <el-button size="small" type="primary" @click.prevent="openEditor(question,'C')">编辑/预览题干</el-button>
+        <AnswerEditor :type="question.question_type" :answer="question.question_answer" @newAnswer="updateAnswer($event, question)"></AnswerEditor>
         <el-input 
           class="textarea"
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 15}"
           placeholder="请输入解析"
-          v-model="domain.question_analy">
+          v-model="question.question_analy">
         </el-input>
         <br>
-        <el-button size="small" type="primary" @click.prevent="openEditor(domain, 'A')">编辑/预览解析</el-button>
-        <br>
-        <el-popover
-          placement="top"
-          width="160"
-          v-model="domain.confirmVisible">
-          <p>确定删除该题吗？</p>
-          <div style="text-align: right; margin: 0">
-            <el-button size="mini" type="text" @click.prevent="removeDomain(domain)">确定</el-button>
-            <el-button type="primary" size="mini" @click="domain.confirmVisible = false">取消</el-button>
-          </div>
-        <el-button slot="reference" size="small">删除该题</el-button>
-        </el-popover>
+        <el-button size="small" type="primary" @click.prevent="openEditor(question, 'A')">编辑/预览解析</el-button>
       </el-col>
-<!--       <el-col :span="8" >
-        <el-upload
-          class="avatar-uploader"
-          action="https://jsonplaceholder.typicode.com/posts/"
-          :show-file-list="false"
-          :on-success="handleAvatarSuccess"
-          :before-upload="beforeAvatarUpload">
-          <img v-if="imageUrl" :src="imageUrl" class="avatar">
-          <i v-else class="el-icon-plus avatar-uploader-icon"></i>
-        </el-upload>
-      </el-col> -->
     </el-row>
     </el-form-item>
     <el-form-item>
-      <el-button type="default" @click="addDomain">新增题</el-button>
+      <el-button type="primary" @click.prevent="addQuestion">新增题目</el-button>
       <!-- <el-button type="default" @click="addQuestion">新增小题</el-button> -->
     </el-form-item>
-    <el-form-item>
-      <el-button type="default" @click="prevStep">上一步</el-button>
-      <el-button type="primary" @click="nextStep">下一步</el-button>
-    </el-form-item>
     </el-form>
+    <div class="next">
+      <el-button type="default" @click.prevent="prevStep">上一步</el-button>
+      <el-button type="primary" @click.prevent="nextStep">下一步</el-button>
+    </div>
   </el-card>
   <el-card class="frame" shadow="never" v-if="curStep==3">
-    <span>预览部件</span>
-    <el-button type="default" @click="prevStep">上一步</el-button>
-    <el-button type="primary" @click="nextStep">下一步</el-button> 
-  </el-card>
-  <el-card class="frame" shadow="never" v-if="curStep==4">
-    <span>上传下载部分</span>
-    <el-button type="default" @click="prevStep">上一步</el-button>
-    <el-button type="primary">提交</el-button>
+    <!-- <span>预览部件</span> -->
+    <div class="block">
+    <el-button type="primary" @click.prevent="toPaperPreview"> 试卷预览 </el-button>
+    <el-button type="primary" @click.prevent="uploadPaper"> 上传试卷 </el-button>
+    </div>
+    <div class="next">
+      <el-button type="default" @click.prevent="prevStep">上一步</el-button>
+    </div>
   </el-card>
   </div>
 </template>
 <script>
+  import MainIndex from '@/components/MainIndex';
   import Editor from '@/components/Editor';
   import AnswerEditor from '@/components/AnswerEditor';
   export default {
-    components:{Editor, AnswerEditor},
+    components:{Editor, AnswerEditor, MainIndex},
     data() {
       return {
-        paperForm: {
-          domains: [{
+        questionsForm: {
+          questions: [{
+            question_diff: 0,
             question_content: '',
             question_type: '',
             question_point: [],
             question_answer: '',
             question_analy: '',
-            confirmVisible: '',
+            confirmVisible: false,
           }],
         },
-        paperBasicForm: {
+        paperInfoForm: {
           paper_subject: [],
           paper_grade: [],
           paper_source:[],
-          paper_year:'',
+          paper_year:"",
+          paper_prefix: "",
+          paper_suffix: "",
 
         },
         sourceOptions:[{
@@ -226,26 +231,26 @@
           }]
         }],
         gradeOptions:[{
-          value: 1,
+          value: 0,
           label: '初中',
           children:[{
-            value: 2,
+            value: 0,
             label: '初中一年级',
             },{
-            value:3,
+            value:1,
             label: '初中二年级' 
             }
           ]
         },{
-          value: 4,
+          value: 1,
           label: '大学',
           children:[{
-            value: 5,
+            value: 0,
             label: '大学三年级'
           }]
         }],
         subjectOptions:[{
-          value:1,
+          value:0,
           label:'数学'
         }],
         curStep: 1,
@@ -254,24 +259,16 @@
         sourceMap: {
           3: "上海大学"
         },
-        gradeMap: {
-          2: "初中一年级",
-          3: "初中二年级",
-          5: "大学三年级"
-        },
-        subjectMap: {
-          1: "数学"
-        },
         pointOptions: [{
             value: '0',
-            label: '应该',
+            label: '解析几何',
             children: [{
-              value: '1',
-              label: '自动'
+              value: '0',
+              label: '椭圆'
               }]
             },{
-            value:'2',
-            label: '产生'
+            value:'1',
+            label: '排列组合'
           }],
         typeOptions:[{
           value: 1,
@@ -292,95 +289,122 @@
         imageUrl: '',
         editorVisible: false,
         editorType: '',
-        curDomain: {},
+        curQuestion: {},
         curContent:'',
+        rate: {
+          colors: ['#1abc9c','#f39c12','#e74c3c'],
+          texts: ['简单', '中等', '难']
+        }
     }
   },
     computed:{
       paper_prefix: function(){
-        let source = this.paperBasicForm.paper_source;
-        let grade = this.paperBasicForm.paper_grade;
-        let subject = this.paperBasicForm.paper_subject;
+        let source = this.paperInfoForm.paper_source;
+        let grade = this.paperInfoForm.paper_grade;
+        let subject = this.paperInfoForm.paper_subject;
         let res = '';
         if (source.length > 0)
           res += this.sourceMap[source[source.length-1]];
-        if (this.paperBasicForm.paper_year != '')
-          res += this.paperBasicForm.paper_year + '年';
-        if (grade.length > 0)
-          res += this.gradeMap[grade[grade.length-1]];
+        if (this.paperInfoForm.paper_year != '')
+          res += this.paperInfoForm.paper_year + '年';
+        if (grade.length > 0){
+          res += this.gradeOptions[grade[0]].children[grade[1]].label;
+        }
         if (subject.length > 0)
-          res += this.subjectMap[subject[subject.length-1]];
+          res += this.subjectOptions[subject[0]].label;
+        this.paperInfoForm.paper_prefix = res;
+        console.log(res);
         return res;
+
       }
     },
     methods: {
-      submitForm(formName) {
-        console.log(this.paperBasicForm.paper_source)
-        console.log(this.$refs['cascaderSource'].currentLabels)
-        console.log(this.$refs['cascaderGrade'].currentLabels)
-        console.log(this.$refs['cascaderSubject'].currentLabels)
+      uploadPaper() {
+        console.log(this.questionsForm.questions);
+        console.log(this.paperInfoForm.paper_source);
+        this.$axios({
+            method:'post',
+            url:'/uploadPaper',
+            data:this.qs.stringify({    //这里是发送给后台的数据
+                paperInfoForm:this.paperInfoForm,
+                questionsForm:this.questions,
+            })
+        }).then((response) =>{          //这里使用了ES6的语法
+            console.log(response);       //请求成功返回的数据
+            this.$router.push({name:'QuestionBank'});
+            sessionStorage.removeItem('uploadQuestions');
+            sessionStorage.removeItem('uploadPaperInfo');
+        }).catch((error) =>{
+            console.log(error);      //请求失败返回的数据
+        });
       },
       nextStep() {
-        if(this.curStep < 4)
+        if(this.curStep < 3)
           this.curStep += 1;
+        sessionStorage.setItem('uploadQuestions', JSON.stringify(this.questionsForm));
+        sessionStorage.setItem('uploadPaperInfo', JSON.stringify(this.paperInfoForm));
       },
       prevStep() {
         if(this.curStep > 1)
           this.curStep -= 1;
       },
-      removeDomain(item) {
+      removeQuestion(item) {
         item.confirmVisible = false;
-        let index = this.paperForm.domains.indexOf(item);
+        let index = this.questionsForm.questions.indexOf(item);
         if (index !== -1) {
-          this.paperForm.domains.splice(index, 1)
+          this.questionsForm.questions.splice(index, 1)
         }
       },
-      addDomain() {
-        this.paperForm.domains.push({
+      addQuestion() {
+        this.questionsForm.questions.push({
           key: Date.now(),
+          question_diff: 0,
           question_content: '',
           question_type: '',
           question_point: [],
           question_answer: '',
           question_analy: '',
-          confirmVisible: '',
+          confirmVisible: false,
           child: [],
         });
       },
-      handleAvatarSuccess(res, file) {
-        this.imageUrl = URL.createObjectURL(file.raw);
-      },
-      beforeAvatarUpload(file) {
-        const isJPG = file.type === 'image/jpeg';
-        const isLt2M = file.size / 1024 / 1024 < 2;
-
-        if (!isJPG) {
-          this.$message.error('上传头像图片只能是 JPG 格式!');
-        }
-        if (!isLt2M) {
-          this.$message.error('上传头像图片大小不能超过 2MB!');
-        }
-        return isJPG && isLt2M;
-      },
-      openEditor(domain, type){
-        this.curDomain = domain;
+      openEditor(question, type){
+        this.curQuestion = question;
         this.editorVisible = true;
         this.editorType = type;
       },
       updateContent(newContent){
         console.log(this.editorType, newContent);
         if (this.editorType == 'C'){
-          this.curDomain.question_content = newContent;
+          this.curQuestion.question_content = newContent;
         }
         else if (this.editorType == 'A'){
-          this.curDomain.question_analy = newContent;
+          this.curQuestion.question_analy = newContent;
         }
       },
-      updateAnswer($event, domain){
-        domain.question_answer = $event;
-        console.log('newAnswer', domain.question_answer);
+      updateAnswer($event, question){
+        question.question_answer = $event;
+        console.log(question);
+        // console.log('newAnswer', question.question_answer);
+      },
+      toPaperPreview(){
+        let routeData = this.$router.resolve({
+          name: "PaperPreview",
+        });
+        window.open(routeData.href, '_blank');
       }
-
+  },
+  mounted(){
+    // sessionStorage.clear();
+    console.log(sessionStorage.getItem("uploadPaperInfo"));
+    if(sessionStorage.getItem("uploadPaperInfo") != null){
+      
+      this.paperInfoForm = JSON.parse(sessionStorage.getItem("uploadPaperInfo"));
+      console.log(this.paperInfoForm);
+    }
+    if(sessionStorage.getItem("uploadQuestions") != null){
+      this.questionsForm = JSON.parse(sessionStorage.getItem("uploadQuestions"));
+    }
   }
 }
 
@@ -389,6 +413,8 @@
 .frame{
   margin-top:2%;
   width:80%;
+  padding-left: 20px;
+  padding-right: 20px;
   margin-left:auto;
   margin-right:auto;
 }
@@ -421,29 +447,24 @@
 .el-select .el-input__inner {
   width: 360px;
 }
-.avatar-uploader .el-upload {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  cursor: pointer;
-  position: relative;
-  overflow: hidden;
+.delete{
+  margin-left: 5%;
 }
-.avatar-uploader .el-upload:hover {
-  border-color: #409EFF;
-}
-.avatar-uploader-icon {
-  border: 1px dashed #d9d9d9;
-  border-radius: 6px;
-  font-size: 28px;
-  color: #8c939d;
-  width: 178px;
-  height: 178px;
-  line-height: 178px;
+.next{
   text-align: center;
+  margin-left: auto;
+  margin-right: auto;
 }
-.avatar {
-  width: 178px;
-  height: 178px;
-  display: block;
+a{
+  text-decoration:none;
+  color: #000000;
+}
+.block {
+  margin-top: 2%;
+  margin-bottom: 2%;
+}
+.rate {
+  margin-bottom: 1%;
+  margin-top: 1%;
 }
 </style>

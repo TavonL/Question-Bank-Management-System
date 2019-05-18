@@ -1,4 +1,6 @@
 <template>
+  <div>
+  <MainIndex activeIndex="6"></MainIndex>
   <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="align">
   <el-form-item label="用户名" class="align username">
     <el-input 
@@ -38,9 +40,12 @@
   </el-form-item>
   </div>
 </el-form>
+</div>
 </template>
 <script>
+ import MainIndex from '@/components/MainIndex';
  export default {
+    components: {MainIndex},
     data() {
         var validatePass = (rule,value,callback)=>{
             if(value === ''){

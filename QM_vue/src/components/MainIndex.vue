@@ -38,10 +38,9 @@
 
 <script>
 export default {
-  name: 'MainIndex',
+  props: ['activeIndex'],
   data () {
     return {
-      activeIndex: '1',
       username: 'test',
       keyword: '',
       type: ''

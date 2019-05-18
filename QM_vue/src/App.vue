@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <mainIndex></mainIndex>
+    <!-- <MainIndex></MainIndex> -->
     <router-view/>
   </div>
 </template>
 
 <script>
-import MainIndex from '@/components/MainIndex';
+
 export default {
   name: 'App',
-  components: { MainIndex }
+  components: {},
 };
 </script>
 
