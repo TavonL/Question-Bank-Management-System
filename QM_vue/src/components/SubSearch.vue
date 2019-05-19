@@ -31,7 +31,7 @@
     </el-form-item>
     <el-form-item label="知识点" style="text-align:left">
       <el-cascader
-        v-model="conditionForm.question_point"
+        v-model="conditionForm.knowledge_point"
         placehoder="请选择"
         :options="options"
         filterable
@@ -52,7 +52,6 @@
     </el-form-item>
     <el-form-item>
     <el-button type="primary" @click="submitForm('conditionForm')">搜索</el-button>
-    <el-button @click="resetForm('conditionForm')">重置</el-button>
     </el-form-item>
     </el-form>
   </el-card> 
@@ -72,9 +71,9 @@
         conditionForm: {
           keyword: '',
           question_type: '不限',
-          paper_subject:'',
-          paper_grade: '0',
-          knowledge_point: [],
+          paper_subject: "0",
+          paper_grade: ["0"],
+          knowledge_point: ["0"],
         },
         optionsSubject: [{
           value: '1',
@@ -92,42 +91,51 @@
           value: '5',
           label: '物理'
         },{
-          value: '6',
+          value: '0',
           label: '不限'
         }],
         options: [{
-            value: '0',
+            value: '1',
             label: '应该',
             children: [{
               value: '0',
               label: '自动'
               }]
             },{
-            value:'1',
-            label: '产生',
             value:'2',
+            label: '产生',
+            value:'0',
             label: '不限',
           }],
     };
   },
     methods: {
       submitForm(formName) {
-        console.log(this.conditionForm);
-        this.$refs[formName].validate((valid) => {
-          if (valid) {
-            alert('submit!');
-          } else {
-            console.log('error submit!!');
-            return false;
-          }
-        });
+        this.$emit('newcondition',this.conditionForm);
       },
       resetForm(formName) {
-        alert('reset!')
         this.$refs[formName].resetFields();
       }
+    },
+  created(){
+    this.$axios({
+      method:'get',
+      url:'/getKnowldgePoints'
+    }).then((response) => {
+      console.log(response);
+    }).catch((error) => {
+      console.log(error);
+    });
+    },
+  watch: {
+    '$route' (to, from) {
+      console.log('params', this.$route.params);
+      this.conditionForm.paper_grade = this.$route.params.grade;
+      this.$emit('newcondition', this.conditionForm);
     }
-  };
+  }
+}
+
 </script>
 
 <style>

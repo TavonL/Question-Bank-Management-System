@@ -319,6 +319,7 @@
       }
     },
     methods: {
+
       uploadPaper() {
         console.log(this.questionsForm.questions);
         console.log(this.paperInfoForm.paper_source);
@@ -388,11 +389,22 @@
         // console.log('newAnswer', question.question_answer);
       },
       toPaperPreview(){
+
         let routeData = this.$router.resolve({
           name: "PaperPreview",
         });
         window.open(routeData.href, '_blank');
       }
+  },
+  created(){
+    this.$axios({
+      method:'get',
+      url:'/getKnowldgePoints'
+    }).then((response) => {
+      console.log(response);
+    }).catch((error) => {
+      console.log(error);
+    });
   },
   mounted(){
     // sessionStorage.clear();

@@ -6,23 +6,17 @@ import QuestionBank from '@/components/QuestionBank';
 import PersonalInfo from '@/components/PersonalInfo';
 import QuestionUpload from '@/components/QuestionUpload';
 import PaperPreview from '@/components/PaperPreview';
-
 Vue.use(Router);
 
 export default new Router({
     routes: [
-        {
-            path: '/',
-            name: 'HelloWorld',
-            component: HelloWorld
-        },
         {
             path: '/login',
             component: Login,
             name: 'Login'
         },
         {
-            path: '/2',
+            path: '/QuestionBank/:grade',
             component: QuestionBank,
             name: 'QuestionBank'
         },
@@ -56,5 +50,9 @@ export default new Router({
             component: PaperPreview,
             name: 'PaperPreview',
         },
+        {
+            path:'*',
+            redirect: '/QuestionBank/0'
+        }
     ]
 });

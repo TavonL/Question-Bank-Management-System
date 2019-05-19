@@ -1,8 +1,17 @@
 <template>
   <div>
-    <MainIndex activeIndex="2"></MainIndex>
-    <!-- <p>test</p> -->
-    <SubSearch></SubSearch>
+    <MainIndex activeIndex="1"></MainIndex>
+    <SubSearch @newcondition="updateCondition"></SubSearch @newcondition="updateCondition"> 
+    <el-dialog
+    title="查看详情"
+    :visible.sync="questionDetailsVisible"
+    width="80%">
+      <QuestionDetail :questionNo="question_no"></QuestionDetail>
+      <span slot="footer" class="dialog-footer">
+        <el-button type="default" @click.prevent="questionDetailsVisible = false">关闭</el-button>
+        <el-button type="primary" @click.prevent="nextQuestion">下一题</el-button>
+      </span>
+    </el-dialog>
     <div class="block pagination">
       <el-pagination
         @current-change="handleCurrentChange"
@@ -29,7 +38,7 @@
           </div>
           <div class="card-footer over" >
             <time class="time">试题来源：{{question.paper_name}}</time>
-            <el-button type="text" class="button" @click.prevent="readMore(question)">查看详情</el-button>
+            <el-button type="text" class="button" @click.prevent="readMore(question.question_no, index)">查看详情</el-button>
             <el-button type="text" class="button" @click.prevent="storeUp(question.question_no)">收藏</el-button>
           </div>
         </div>
@@ -53,11 +62,16 @@
 <script>
 import SubSearch from '@/components/SubSearch';
 import MainIndex from '@/components/MainIndex';
+import QuestionDetail from '@/components/QuestionDetail';
 export default {
     name:'QuestionBank',
-    components:{SubSearch, MainIndex},
+    components:{SubSearch, MainIndex, QuestionDetail},
     data(){
         return{
+            conditionForm:{},
+            question_no: 123,
+            question_index: 0,
+            questionDetailsVisible: false,
             row: 5,
             col: 4,
             curQuestions: [{
@@ -86,8 +100,7 @@ export default {
               "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg"
             ],
             currentPage:1,
-            
-        }
+        };
     },
     methods: {
       handleSizeChange(val) {
@@ -98,6 +111,7 @@ export default {
 
         if((this.currentPage-1) % 10 != 0)
           return;
+        this.getQuestions(Math.floor((this.currentPage-1)/10) * this.col * this.row, this.col*this.col*10);
         this.$axios({
               method:'get',
               url:'/getQuestions?question_offset='+ (this.currentPage-1) + '&question_num='+ (this.col*this.row*10),
@@ -107,8 +121,18 @@ export default {
               console.log(error);      //请求失败返回的数据
           });
       },
-      readMore(question){
+      readMore(question_no, index){
+        this.question_no = question_no;
+        this.questionDetailsVisible = true;
+        this.question_index = index + 1;
+      },
+      nextQuestion(){
+        if(this.curQuestions.length < this.question_index){
 
+          return;
+        }
+        this.question_no = this.curQuestions[this.question_index].question_no;
+        this.question_index += 1;
       },
       storeUp(question_no){
         this.$axios({
@@ -120,24 +144,32 @@ export default {
             console.log(error);      //请求失败返回的数据
         });
       },
+      getQuestions(questionOffset, questionNum){
+        this.$axios({
+          method:'post',
+          url:'/getQuestion',
+          data:this.qs.stringify({    //这里是发送给后台的数据
+            questionOffset: questionOffset,
+            questionNum: questionNum,
+            conditionForm: this.conditionForm,
+          })
+        }).then((response) =>{          //这里使用了ES6的语法
+            console.log(response);       //请求成功返回的数据
+            this.$router.push({name:'QuestionBank'});
+            sessionStorage.removeItem('uploadQuestions');
+            sessionStorage.removeItem('uploadPaperInfo');
+        }).catch((error) =>{
+            console.log(error);      //请求失败返回的数据
+        });
+      },
+      updateCondition(newCondition){
+        this.conditionForm = newCondition;
+        console.log(this.conditionForm);
+        this.getQuestions(0, this.col*this.row*10);
+      }
     },
     created(){
-      this.$axios({
-        method:'get',
-        url:'/getKnowldgePoints'
-      }).then((response) => {
-        console.log(response);
-      }).catch((error) => {
-        console.log(error);
-      });
-      this.$axios({
-          method:'get',
-          url:'/getQuestions?question_offset=0&question_num='+ (this.col*this.row*10),
-        }).then((response) =>{          //这里使用了ES6的语法
-          console.log(response);       //请求成功返回的数据
-        }).catch((error) =>{
-          console.log(error);      //请求失败返回的数据
-        });
+      this.getQuestions(0, this.col*this.row*10);
     },
     mounted(){
     this.$nextTick(() => {

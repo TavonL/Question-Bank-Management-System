@@ -5,8 +5,10 @@
     <template slot="title">
       <span>编辑辅助</span>
     </template>
+  <el-button type="primary" class="button" size="mini" @click.prevent="insertInputTxt(' \\')">换行符</el-button>
   <el-button type="primary" class="button" size="mini" @click.prevent="insertInputTxt('$$')">插入公式</el-button>
   <el-button class="button" size="mini" @click.prevent="insertInputTxt('\\____')">插入下划线</el-button>
+
   <el-popover
     placement="top"
     title="希腊字母"
@@ -38,6 +40,7 @@
     :toolbars="toolbars"
     :boxShadow="false"
     ref="md"
+    @imgAdd="$imgAdd" @imgDel="$imgDel"
     />
   </el-collapse-item>
   </el-collapse>
@@ -55,6 +58,16 @@ export default {
   props: ['content'],
   data () {
     return {
+          img_file:[],
+          editorOptions:{
+            modules:{
+              toolbar:[
+                ['bold', 'italic', 'underline', 'strike'],        // toggled buttons
+                ['blockquote', 'code-block'],
+                ['formula']
+              ]
+            }
+          },
           curContent: this.content,
           alphabets:[
             'alpha','beta','gamma','delta',
@@ -94,10 +107,10 @@ export default {
             bold: true, // 粗体
             italic: true, // 斜体
             header: true, // 标题
-            underline: true, // 下划线
-            mark: true, // 标记
-            superscript: true, // 上角标
-            quote: true, // 引用
+            underline: false, // 下划线
+            mark: false, // 标记
+            superscript: false, // 上角标
+            quote: false, // 引用
             ol: true, // 有序列表
             link: true, // 链接
             code: true, // code
@@ -137,6 +150,27 @@ export default {
     },
     saveContent(){
       this.$emit('new', this.curContent);
+    },
+    $imgAdd(pos, $file) {
+    // 第一步.将图片上传到服务器.
+      var formdata = new FormData();
+      formdata.append('figure', $file);
+      this.img_file[pos] = $file;
+      this.$axios({
+          url: '/uploadFig',
+          method: 'post',
+          data: formdata,
+          headers: { 'Content-Type': 'multipart/form-data' },
+      }).then((res) => {
+          let _res = res.data;
+          // 第二步.将返回的url替换到文本原位置![...](0) -> ![...](url)
+          this.$refs.md.$img2Url(pos, _res.url);
+      }).catch((error) => {
+          console.log(error);
+      })
+    },
+    $imgDel(pos) {
+      delete this.img_file[pos];
     }
   },
   watch: {

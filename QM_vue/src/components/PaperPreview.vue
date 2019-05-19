@@ -75,6 +75,20 @@ export default {
       console.log(res);
       return res;
     },
+    md2word(){
+      this.$axios({
+        method:'post',
+        url:'/PaperPreview/md2word',
+        data:this.qs.stringify({    //这里是发送给后台的数据
+            paperName: this.paperName,
+            questionsContent: this.questionsContent,
+        })
+      }).then((response) =>{          //这里使用了ES6的语法
+        console.log(response)
+      }).catch((error) =>{
+          console.log(error);      //请求失败返回的数据
+      });
+    }
   },
   mounted (){
 
@@ -85,7 +99,7 @@ export default {
     for (let i=0; i < this.questions.length; i++){
       this.questionsContent += (i+1) + ' . '+ this.questions[i].question_content + '\n\n';
       if (this.questions[i].question_type == 4){
-         this.questionsContent += " \\\n \\\n \\\n \\\n \\\n \\\n";
+         this.questionsContent += " \\\n \\\n \\\n \\\n \\\n \\\n \\\n";
       }
       if (this.questions[i].question_type == 5){
         for (let j=0; j < this.questions[i].question_answer.length; j++){
@@ -97,7 +111,10 @@ export default {
         }
       }
     }
+    this.md2word();
     console.log(this.questionsContent);
+
+
     this.$nextTick(() => {
       console.log(this.$refs);
       console.log(this.$refs.md.$refs.vShowContent.parentElement.parentElement);
