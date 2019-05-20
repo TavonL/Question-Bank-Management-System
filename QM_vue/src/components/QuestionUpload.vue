@@ -1,6 +1,6 @@
 <template>
   <div>
-  <MainIndex activeIndex="4"></MainIndex>
+  <MainIndex activeIndex="3"></MainIndex>
   <el-card shadow="never" class="frame">
     <el-steps :active="curStep">
     <el-step title="步骤 1" description="基本信息"></el-step>
@@ -97,8 +97,7 @@
     <el-form :model="questionsForm" ref="questionsForm" label-width="130px" class="form" >
       <el-form-item
       v-for="(question, index) in questionsForm.questions"
-      :key="question.key"
-      :prop="'questions.' + index + '.value'"
+      :key="index"
     > 
       <template slot="label"> 
         第 {{index+1}} 题 
@@ -118,6 +117,7 @@
       <el-row>
       <el-col :span="16">
         <div >
+          <span>题目难度</span>
           <el-rate class="rate"
             v-model="question.question_diff"
             :colors="rate.colors"
@@ -131,7 +131,7 @@
         </div>
         <el-cascader size="medium"
           class="cascader"
-          v-model="question.question_point"
+          v-model="question.knowledge_point"
           placeholder="请选择该题知识点"
           :options="pointOptions"
           filterable
@@ -173,11 +173,16 @@
       <!-- <el-button type="default" @click="addQuestion">新增小题</el-button> -->
     </el-form-item>
     </el-form>
+    <el-alert class="alert" v-if="questionsCheckedInfoVisible"
+      :title="questionsCheckedInfo"
+      type="error">
+    </el-alert>
     <div class="next">
       <el-button type="default" @click.prevent="prevStep">上一步</el-button>
       <el-button type="primary" @click.prevent="nextStep">下一步</el-button>
     </div>
   </el-card>
+
   <el-card class="frame" shadow="never" v-if="curStep==3">
     <!-- <span>预览部件</span> -->
     <div class="block">
@@ -200,10 +205,10 @@
       return {
         questionsForm: {
           questions: [{
-            question_diff: 0,
+            question_diff: '',
             question_content: '',
             question_type: '',
-            question_point: [],
+            knowledge_point: [],
             question_answer: '',
             question_analy: '',
             confirmVisible: false,
@@ -216,16 +221,15 @@
           paper_year:"",
           paper_prefix: "",
           paper_suffix: "",
-
         },
         sourceOptions:[{
-          value: 1,
+          value: 0,
           label: '上海市',
           children:[{
-            value: 2,
+            value: 0,
             label: '宝山区',
             children:[{
-              value: 3,
+              value: 0,
               label: '上海大学'
             }]
           }]
@@ -294,7 +298,9 @@
         rate: {
           colors: ['#1abc9c','#f39c12','#e74c3c'],
           texts: ['简单', '中等', '难']
-        }
+        },
+        questionsCheckedInfoVisible: false,
+        questionsCheckedInfo: ''
     }
   },
     computed:{
@@ -303,8 +309,15 @@
         let grade = this.paperInfoForm.paper_grade;
         let subject = this.paperInfoForm.paper_subject;
         let res = '';
-        if (source.length > 0)
-          res += this.sourceMap[source[source.length-1]];
+        if (source.length > 0){
+          let temp = this.sourceOptions[this.paperInfoForm.paper_source[0]];
+          console.log(temp);
+          for (let i=1; i < this.paperInfoForm.paper_source.length; i++){
+            console.log(temp);
+            temp = temp.children[this.paperInfoForm.paper_source[i]];
+          }
+          res += temp.label;
+        }
         if (this.paperInfoForm.paper_year != '')
           res += this.paperInfoForm.paper_year + '年';
         if (grade.length > 0){
@@ -319,7 +332,20 @@
       }
     },
     methods: {
-
+      validateForm(formName) {
+        let res = false;
+        this.$refs[formName].validate((valid) => {
+          if (valid) {
+            console.log("ok")
+            res = true;
+          } else {
+            console.log('error submit!!');
+            res = false;
+          }
+        });
+        console.log(res);
+        return res;
+      },
       uploadPaper() {
         console.log(this.questionsForm.questions);
         console.log(this.paperInfoForm.paper_source);
@@ -339,15 +365,57 @@
             console.log(error);      //请求失败返回的数据
         });
       },
+      checkQuestions(){
+        let questions = this.questionsForm.questions;
+        for(let i=0; i < questions.length; i++){
+          console.log(questions[0]);
+          if (questions[i].question_diff == ''){
+            this.questionsCheckedInfo = "请输入第"+ (i+1) + "题的难度";
+            this.questionsCheckedInfoVisible = true;
+            return false;
+          }
+          else if(questions[i].knowledge_point.length == 0){
+            this.questionsCheckedInfo = "请输入第"+ (i+1) + "题的知识点";
+            this.questionsCheckedInfoVisible = true;
+          }
+          else if(questions[i].question_content == ''){
+            this.questionsCheckedInfo = "请输入第"+ (i+1) + "题的题干";
+            this.questionsCheckedInfoVisible = true;
+          }
+          else if(questions[i].question_answer == ''){
+            this.questionsCheckedInfo = "请输入第"+ (i+1) + "题的答案";
+            this.questionsCheckedInfoVisible = true;
+          }
+          else if(questions[i].question_analy == ''){
+            this.questionsCheckedInfo = "请输入第"+ (i+1) + "题的分析";
+            this.questionsCheckedInfoVisible = true;
+          }
+        }
+        return true;
+      },
       nextStep() {
-        if(this.curStep < 3)
+        console.log(this.curStep);
+        if(this.curStep >= 3)
+          return;
+        if(this.curStep === 1 && this.validateForm('paperInfoForm')){
           this.curStep += 1;
+        }
+        else if (this.curStep == 2 && this.checkQuestions()){
+          console.log('curStep 2 ok');
+          this.curStep += 1;
+          this.questionsCheckedInfoVisible = false;
+        }
+        else if(this.curStep == 3){
+          console.log("else");
+          this.curStep += 1;
+        }
         sessionStorage.setItem('uploadQuestions', JSON.stringify(this.questionsForm));
         sessionStorage.setItem('uploadPaperInfo', JSON.stringify(this.paperInfoForm));
       },
       prevStep() {
-        if(this.curStep > 1)
-          this.curStep -= 1;
+        if(this.curStep <= 1)
+          retrun;
+        this.curStep -= 1;
       },
       removeQuestion(item) {
         item.confirmVisible = false;
@@ -358,11 +426,10 @@
       },
       addQuestion() {
         this.questionsForm.questions.push({
-          key: Date.now(),
           question_diff: 0,
           question_content: '',
           question_type: '',
-          question_point: [],
+          knowledge_point: [],
           question_answer: '',
           question_analy: '',
           confirmVisible: false,
@@ -382,11 +449,13 @@
         else if (this.editorType == 'A'){
           this.curQuestion.question_analy = newContent;
         }
+        this.editorVisible = false;
       },
       updateAnswer($event, question){
         question.question_answer = $event;
         console.log(question);
         // console.log('newAnswer', question.question_answer);
+        this.editorVisible = false;
       },
       toPaperPreview(){
 
@@ -476,6 +545,14 @@ a{
   margin-bottom: 2%;
 }
 .rate {
+  margin-bottom: 1%;
+  margin-top: 0%;
+}
+.alert {
+  width: 30%;
+  text-align: center;
+  margin-left: auto;
+  margin-right: auto;
   margin-bottom: 1%;
   margin-top: 1%;
 }

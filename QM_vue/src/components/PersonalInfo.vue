@@ -1,6 +1,6 @@
 <template>
   <div>
-  <MainIndex activeIndex="6"></MainIndex>
+  <MainIndex activeIndex="5"></MainIndex>
   <el-form :model="ruleForm" status-icon :rules="rules" ref="ruleForm" label-width="100px" class="align">
   <el-form-item label="用户名" class="align username">
     <el-input 

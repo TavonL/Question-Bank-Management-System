@@ -11,6 +11,8 @@ import qs from 'qs';
 import mavonEditor from 'mavon-editor';
 import 'mavon-editor/dist/css/index.css';
 import '@/assets/iconfont.css';
+import Vuex from 'vuex';
+Vue.use(Vuex);
 
 Vue.use(mavonEditor);
 Vue.use(ElementUI);
