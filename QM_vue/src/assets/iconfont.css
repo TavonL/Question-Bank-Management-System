@@ -1,0 +1,30 @@
+@font-face {font-family: "iconfont";
+  src: url('./fonts/iconfont.eot?t=1557449614183'); /* IE9 */
+  src: url('./fonts/iconfont.eot?t=1557449614183#iefix') format('embedded-opentype'), /* IE6-IE8 */
+  url('data:application/x-font-woff2;charset=utf-8;base64,d09GMgABAAAAAAQIAAsAAAAACBAAAAO5AAEAAAAAAAAAAAAAAAAAAAAAAAAAAAAAHEIGVgCDDAqDVIMaATYCJAMQCwoABCAFhG0HTRsBBxFVnG/IvsKmDPeCwnYdVmSG56yCuh27Y/v4mAMpIFAAAABAgAigtXQW/nNJmdDVAjtCB6irWwuELiRMgT0frbU3iWici9jJJ0xs/372xPfmLYKHRiJkUnkiNIg0EgAwcWiczWl7wEzv5kgg8fBQshNDxLHk//+4d9q0BOYDyu2PVdHY63xMwCjgAMfcZAWuqTWM3UR5EJsJqNLZQGHmsoMHoZCBXgFhsxUdSihSKrkmOygE5ZKJWTgtq4jHDk7x74evhocCUSkBA5dyywjC1L/wIaX+55KyYOMZoE0jYSAyYW2paXkihaGBkionlPVmXa0CH9L/fAgUXe1fHkGUCGUgsyEYKYYTHwJmcEUUGaIiiRxKL0JduJO0YxIeA4KOFoii0IMu8Xbf1lZ7DB5KTNHFUJ395Lujxh6VlZLt5RxVoB9Or6kMThqa85urlpq3h3rxCXqdPFErN0OpuoqjrYOvpsPj+Edx+VmNSB0YhVAFAL+t0R01kyWSnat3j7+BQhU4Gq752hFuRTEbwlHVNoBPWmoHe8Zkujo6/SAj3fAI15nXXuiu4gAgcXkYxzSWIDH7gvNbB+q0hbTPdJ2F4TOH0//X4A3i7tu8xQFRF+2TIkVNrX4VG213RpXK5YakeJ/oPVfck8sukJDO7bCwG1zOkX69qfBxI8jJnhqV2Jm40+D9dpyHvvpSSxdlvf7TPGz5tQ4xuq09DYSXpFetpNcNuWro5GZtxWGrrPSTti87/H7Jwp6oXHs+kEZotp4p32a7/JI2mbp8GFJ5d0vftVo0er3oxfhe40wPAmcNj7fLPCiV8w2cMwjbE2CreC+uJPwXr6QSxFfx7I/sZPjRp7t1zAafRYMraqj/9TB3/Ze1DxciGvbbsJYV2SWAOmebxKhnycb3DkQWqqCX/4Ctud8xlK1aBwiKFKZBVKETJIWe7MwfCCUNjISywhSoMsDK9AZaENJCrkR/TwIETX1A1NgDSJr6ZGf+D5S09g9lTUMaqqwOLRZsoHewSjMEMsIaVNtg6YHPkZZKQfY+GnWXiSTBhccoYssLmqxmoyvooxhjSNwwKkQcuAg8WBa2Q9cNIBSBjTrJJlE4rii87E2yHniJkhkExBBUA6ragEUX8HFan5Ryn9+HDHUuRtTkdGSPISFmNQ80MrUFe0Xut8q5lmtiDYYKQjjACQEPWBYMyIWhAAjL29mQjsjMHoHQOEWqxdvK5fmV3gNEtAJAmxxiSCGHkhtKHWFuaLJi5K4isYJkg3keSyQAAAAA') format('woff2'),
+  url('./fonts/iconfont.woff?t=1557449614183') format('woff'),
+  url('./fonts/iconfont.ttf?t=1557449614183') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+  url('./fonts/iconfont.svg?t=1557449614183#iconfont') format('svg'); /* iOS 4.1- */
+}
+
+.iconfont {
+  font-family: "iconfont" !important;
+  font-size: 22px;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-align: center;
+}
+
+.icon-icon-alpha:before {
+  content: "\e601";
+}
+
+.icon-icon-beta:before {
+  content: "\e602";
+}
+
+.icon-icon-gamma:before {
+  content: "\e603";
+}
+

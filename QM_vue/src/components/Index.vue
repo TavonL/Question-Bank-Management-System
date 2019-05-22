@@ -1,5 +1,5 @@
 <template>
-
+<MainIndex :activeIndex="1"></MainIndex>
 </template>
 
 <script>

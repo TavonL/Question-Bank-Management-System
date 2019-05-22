@@ -6,9 +6,18 @@ import router from './router';
 import ElementUI from 'element-ui';
 import 'element-ui/lib/theme-chalk/index.css';
 import 'font-awesome/css/font-awesome.min.css';
+import axios from 'axios';
+import qs from 'qs';
+import mavonEditor from 'mavon-editor';
+import 'mavon-editor/dist/css/index.css';
+import '@/assets/iconfont.css';
 
+Vue.use(mavonEditor);
 Vue.use(ElementUI);
+Vue.prototype.$axios = axios;
+Vue.prototype.qs = qs;
 Vue.config.productionTip = false;
+axios.defaults.baseURL = 'http://localhost:5000';
 
 /* eslint-disable no-new */
 new Vue({

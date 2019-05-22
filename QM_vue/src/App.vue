@@ -1,15 +1,15 @@
 <template>
   <div id="app">
-    <mainIndex></mainIndex>
+    <!-- <MainIndex></MainIndex> -->
     <router-view/>
   </div>
 </template>
 
 <script>
-import MainIndex from '@/components/MainIndex';
+
 export default {
   name: 'App',
-  components: { MainIndex }
+  components: {},
 };
 </script>
 
@@ -18,7 +18,6 @@ export default {
   font-family: 'Avenir', Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-align: center;
   color: #2c3e50;
   margin-top: 30px;
 }
