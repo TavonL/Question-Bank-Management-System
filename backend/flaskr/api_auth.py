@@ -92,6 +92,31 @@ def update_pwd():
 	return jsonify({"code":code})
 
 
+@bp.route('/getUsersMsg', methods=('GET', ))
+def get_UsersMsg():
+	# 获取用户表所有记录
+	db = get_db()
+	sql = "SELECT user_name, user_pwd, user_auth FROM user"
+	db_res = excute_select(db, sql)
+	result = []
+	for item in db_res:
+		item = list(item)
+		dic = {"userName":item[0],
+				"password":item[1],
+				"permission":item[2],
+				"infoChangeSeen":False,
+				"changeButton":"编辑",
+				"lastUserName":"none"
+			   }
+		result.append(dic)
+	return jsonify(result)
+
+
+# @bp.route('/uploadUserMsg', methods=('POST', ))
+# def upload_UserMsg():
+# 	# 更新用户表
+
+
 @bp.before_app_request
 def load_logged_in_user():
 	"""

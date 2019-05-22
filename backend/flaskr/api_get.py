@@ -11,7 +11,7 @@ from flaskr.db import (
 bp = Blueprint('get', __name__, url_prefix='/api/get')
 
 subject = {'0': '不限', '1': '语文', '2': '数学', '3': '英语', '4': '物理', '5': '化学', '6': '生物', '7': '地理', '8': '历史', '9': '政治'}
-question_type = ['不限', '填空题', '单选题', '多选题', '应用题(简答题)', '综合题', '阅读']
+question_type = ['不限', '填空题', '单选题', '多选题', '应用题', '简答题', '综合题', '阅读']
 
 @bp.route('/Question', methods=('POST', ))
 def get_Question():
@@ -58,6 +58,7 @@ def get_QuestionDetail():
 	# question_type = ['填空题', '选择题', '应用题', '阅读', '综合题']
 	data = request.get_data()
 	data = json.loads(data)
+
 	sql = "SELECT T1.question_diff, T1.question_type, T1.question_content, T1.question_answer, T1.question_analy, figure_url, paper_info, know_no \
 	  FROM (SELECT * from question where question_no = {question_no}) AS T1 LEFT JOIN figure on figure.question_no = T1.question_no \
 	  INNER JOIN paper ON paper.paper_no = T1.paper_no".format(question_no=data["question_no"])
@@ -70,7 +71,6 @@ def get_QuestionDetail():
 		code = -1
 	else:
 		sql = "SELECT know_no, super_no from know"
-		db = get_db()
 		res = excute_select(db, sql)
 		res = [list(item) for item in list(res)]
 		dic = dict()
@@ -84,7 +84,22 @@ def get_QuestionDetail():
 			know_list.append(item)
 			item = dic[item]
 		know_list.reverse()
-		# return jsonify(know_list)
+
+		# 查有没有子题目
+		sql = "SELECT little_question_no, little_question_type, little_question_content, \
+		  little_question_answer, little_question_analy \
+		  FROM little_question where super_question_no = {question_no} order by question_no".format(question_no=data["question_no"])
+		res = excute_select(db, sql)
+		result = []
+		for item in res:
+			item = list(item)
+			dic = {"little_question_no":str(item[0]),
+				   "little_question_type":str(question_type.index(item[1])),
+				   "little_question_content":item[2],
+				   "little_question_answer":item[3],
+				   "little_question_analy":item[4]
+				  }
+			result.append(dic)
 		dic = { "code":code , 
 				"question_diff":str(db_res[0]), 
 				"question_type":str(question_type.index(db_res[1])),
@@ -93,7 +108,8 @@ def get_QuestionDetail():
 				"question_analy":db_res[4],
 				"figure_url":db_res[5],
 				"paper_name":db_res[6],
-				"knowledge_point":know_list
+				"knowledge_point":know_list,
+				"little_question":result,
 			  }
 		return jsonify(dic)
 	return jsonify({"code":code})
