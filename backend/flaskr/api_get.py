@@ -132,3 +132,5 @@ def get_KnowledgePoints():
 		}
 		result.append(dic)
 	return jsonify({"know": result})
+
+
