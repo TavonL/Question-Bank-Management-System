@@ -112,9 +112,40 @@ def get_UsersMsg():
 	return jsonify(result)
 
 
-# @bp.route('/uploadUserMsg', methods=('POST', ))
-# def upload_UserMsg():
-# 	# 更新用户表
+@bp.route('/uploadUserMsg', methods=('POST', ))
+def upload_UserMsg():
+	# 更新用户表
+	data = request.get_data()
+	data = json.loads(data)
+	code = 0
+	db = get_db()
+	if data["opt"] == "add":
+		sql = "INSERT INTO user(user_name, user_pwd, user_auth) VALUES \
+			  ('{username}', '{password}', '{permission}')".format(
+				username=data["userName"], password=data["password"], 
+				permission=data["permission"]
+				)
+		db_res = excute_insert(db, sql)
+		if db_res == 'Error':
+			code = -1
+	elif data["opt"] == "del":
+		sql = "DELETE FROM user WHERE user_name='{username}'".format(
+			username=data["userName"])
+		db_res = excute_delete(db, sql)
+		if db_res == 'Error':
+			code = -1
+	elif data["opt"] == "update":
+		sql = "UPDATE user SET user_name='{username}', user_pwd='{password}' \
+			, user_auth='{permission}' WHERE user_name='{lastname}'".format(
+				username=data["userName"], password=data["password"], 
+				permission=data["permission"], lastname=data["lastUserName"]
+				)
+		# return jsonify(sql)
+		db_res = excute_update(db, sql)
+		# return jsonify(db_res)
+		if db_res == 'Error':
+			code = -1
+	return jsonify({"code":code})
 
 
 @bp.before_app_request
