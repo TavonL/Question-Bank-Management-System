@@ -10,6 +10,7 @@ from flaskr.db import (
 
 bp = Blueprint('auth', __name__, url_prefix='/api/auth')
 
+
 @bp.route('/login', methods=('POST', ))
 def login():
 	# Log in a registered user by adding the user id to the session.
