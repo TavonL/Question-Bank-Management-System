@@ -26,9 +26,7 @@ CREATE TABLE `figure` (
   `figure_url` varchar(45) NOT NULL,
   `question_no` int(11) unsigned NOT NULL,
   `A/Q` varchar(3) NOT NULL,
-  PRIMARY KEY (`figure_url`),
-  KEY `B_idx` (`question_no`),
-  CONSTRAINT `D` FOREIGN KEY (`question_no`) REFERENCES `question` (`question_no`)
+  PRIMARY KEY (`figure_url`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='图片(图片url，大题题号，A/Q)';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -103,10 +101,7 @@ DROP TABLE IF EXISTS `kq_cor`;
 CREATE TABLE `kq_cor` (
   `question_no` int(11) unsigned NOT NULL,
   `know_no` int(11) unsigned NOT NULL,
-  PRIMARY KEY (`question_no`,`know_no`),
-  KEY `G_idx` (`know_no`),
-  CONSTRAINT `F` FOREIGN KEY (`question_no`) REFERENCES `question` (`question_no`),
-  CONSTRAINT `G` FOREIGN KEY (`know_no`) REFERENCES `know` (`know_no`)
+  PRIMARY KEY (`question_no`,`know_no`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='题目知识点对应表（题号，知识点号）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
@@ -116,7 +111,7 @@ CREATE TABLE `kq_cor` (
 
 LOCK TABLES `kq_cor` WRITE;
 /*!40000 ALTER TABLE `kq_cor` DISABLE KEYS */;
-INSERT INTO `kq_cor` VALUES (1,16),(5,32),(2,33),(3,39),(4,40);
+INSERT INTO `kq_cor` VALUES (1,16),(2,33),(3,39),(4,40),(5,32);
 /*!40000 ALTER TABLE `kq_cor` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -128,7 +123,7 @@ DROP TABLE IF EXISTS `little_question`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `little_question` (
-  `little_question_no` int(11) unsigned NOT NULL,
+  `little_question_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `little_question_type` varchar(45) NOT NULL,
   `little_question_content` varchar(500) DEFAULT NULL,
   `little_question_answer` varchar(500) DEFAULT NULL,
@@ -137,7 +132,7 @@ CREATE TABLE `little_question` (
   PRIMARY KEY (`little_question_no`),
   KEY `H_idx` (`super_question_no`),
   CONSTRAINT `H` FOREIGN KEY (`super_question_no`) REFERENCES `question` (`question_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='小题目（题号，题型，题目文本，答案文本，题目解析）';
+) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8 COMMENT='小题目（题号，题型，题目文本，答案文本，题目解析）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -168,7 +163,7 @@ CREATE TABLE `paper` (
   KEY `B_idx` (`paper_subject`),
   CONSTRAINT `B` FOREIGN KEY (`paper_subject`) REFERENCES `know` (`know_no`),
   CONSTRAINT `L` FOREIGN KEY (`source`) REFERENCES `school` (`school_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='试卷（试卷编号，科目，年级，试卷信息，学校名）';
+) ENGINE=InnoDB AUTO_INCREMENT=14 DEFAULT CHARSET=utf8 COMMENT='试卷（试卷编号，科目，年级，试卷信息，学校名）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -177,7 +172,7 @@ CREATE TABLE `paper` (
 
 LOCK TABLES `paper` WRITE;
 /*!40000 ALTER TABLE `paper` DISABLE KEYS */;
-INSERT INTO `paper` VALUES (1,2,10,'2018-2019第一学期期中试卷',18),(2,4,12,'2009-2010年普通高等学校招生统一考试',1),(3,4,12,'2009-2010年高等学校招生统一考试',1);
+INSERT INTO `paper` VALUES (1,2,10,'2018-2019第一学期期中试卷',18),(2,4,12,'2009-2010年普通高等学校招生统一考试',1),(3,4,12,'2009-2010年高等学校招生统一考试',1),(4,4,12,'12',1),(10,9,12,'9210年测试卷',2),(11,9,12,'9210年测试卷',2),(12,9,12,'9210年测试卷',2),(13,9,12,'9210年测试卷',2);
 /*!40000 ALTER TABLE `paper` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -189,7 +184,7 @@ DROP TABLE IF EXISTS `question`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `question` (
-  `question_no` int(11) unsigned NOT NULL,
+  `question_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `paper_no` int(11) unsigned NOT NULL,
   `question_type` varchar(45) NOT NULL,
   `question_diff` int(11) NOT NULL,
@@ -202,7 +197,7 @@ CREATE TABLE `question` (
   KEY `I_idx` (`know_no`),
   CONSTRAINT `E` FOREIGN KEY (`paper_no`) REFERENCES `paper` (`paper_no`),
   CONSTRAINT `I` FOREIGN KEY (`know_no`) REFERENCES `know` (`know_no`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='题目（题号，试卷号，题型，难度系数，题目文本，题目答案，题目解析，考察知识点）';
+) ENGINE=InnoDB AUTO_INCREMENT=22 DEFAULT CHARSET=utf8 COMMENT='题目（题号，试卷号，题型，难度系数，题目文本，题目答案，题目解析，考察知识点）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -278,4 +273,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-25 15:16:04
+-- Dump completed on 2019-05-25 18:04:23
