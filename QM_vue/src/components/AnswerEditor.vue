@@ -60,7 +60,7 @@
 </div>
 
 <div class="block" v-else-if="curType == 5">
-<el-dialog title="编辑/预览" :visible.sync="subEditorVisible" >
+<el-dialog title="编辑/预览" :visible.sync="subEditorVisible" @close="curQst.question_content+=''" >
 <Editor :content="curQst.question_content" @new="updateSubQuestionContent"></Editor>
 </el-dialog>
   <div class="block" v-for="(qst, index) in subQuestions" :key="index">
@@ -90,22 +90,18 @@
   <el-button class="button" type="primary" size="small" @click.prevent="newSubQuestion">新增小题</el-button>
 </div>
 
-<div v-else-if="curType == 6">
-  作文
-</div>
-
 
 </template>
 
 <script>
-import Editor from '@/components/Editor'
+import Editor from '@/components/Editor';
 export default {
   name: 'AnswerEditor',
   props: ['type','answer'],
   components: {Editor},
   data () {
     return {
-      curQst: '',
+      curQst: [],
       subEditorVisible:false,
       editorVisible: false,
       wordAnswer: '',
@@ -180,15 +176,17 @@ export default {
       this.$emit('newAnswer', this.wordAnswer);
     },
     updateCompreAnswer(newAnswer){
+      console.log('compre?',console.log(newAnswer));
       this.$emit('newAnswer', this.subQuestions);
     },
     updateSubQuestionContent(newContent){
-      this.curQst.content = newContent;
+      this.curQst.question_content = newContent;
+      console.log(this.subQuestions);
     },
     updateSubAnswer($event, question){
       question.question_answer = $event;
       this.$emit('newAnswer', this.subQuestions)
-      // console.log(this.subQuestions);
+      console.log('newAnswer?',this.subQuestions);
     }
   },
   watch: {

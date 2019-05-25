@@ -1,0 +1,18 @@
+Mime-Version: 1.0
+Content-Base: http://localhost:8080/#/paperPreview
+Content-Type: Multipart/related; boundary="NEXT.ITEM-BOUNDARY";type="text/html"
+
+--NEXT.ITEM-BOUNDARY
+Content-Type: text/html; charset="utf-8"
+Content-Location: http://localhost:8080/#/paperPreview
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+
+</style>
+</head>
+<body>undefined</body></html>
+--NEXT.ITEM-BOUNDARY--

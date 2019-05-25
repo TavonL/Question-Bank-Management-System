@@ -1,0 +1,18 @@
+Mime-Version: 1.0
+Content-Base: http://localhost:8080/#/paperPreview
+Content-Type: Multipart/related; boundary="NEXT.ITEM-BOUNDARY";type="text/html"
+
+--NEXT.ITEM-BOUNDARY
+Content-Type: text/html; charset="utf-8"
+Content-Location: http://localhost:8080/#/paperPreview
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+<style>
+
+</style>
+</head>
+<body><h3 style="text-align:center">上海大学2012年初中一年级语文卷</h3><h4 style="text-align:center"> 学号&nbsp;___________&nbsp;姓名&nbsp;___________&nbsp;成绩&nbsp;___________ </h4><br><span>一、 填空题<br></span>1 . <p style="line-height: 150%; text-align: right;"><span style="font-family: 宋体">从</span>1<span style="font-family:宋体">，</span>2<span style="font-family: 宋体">，</span>3<span style="font-family:宋体">，</span>……<span style="font-family: 宋体">，</span>2008<span style="font-family:宋体">中选出总和为</span>1009000<span style="font-family:宋体">的</span>1004<span style="font-family:宋体">个数，并且这</span>1004<span style="font-family:宋体">个数中，任意两个数的和都不等于</span>2009<span style="font-family:宋体">，则这</span>1004<span style="font-family:宋体">个数的平方和为</span><span style="text-decoration:underline;">&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; </span><span style="font-family:宋体">。</span></p><p style="text-align:center"><img src="http://35.201.165.105:8000/storage/image/20190524/1558690185702009.jpg" title="1558690185702009.jpg" alt="QQ图片20180624183425.jpg" crossorigin="anonymous"></p><p style="line-height: 150%; text-align: right;"><span style="font-family:宋体"></span><br></p>  <span>二、 综合题<br></span>1 . <p><span style="font-size:16px;font-family:宋体">已知</span><span style="font-size:16px;font-family:'Times New Roman','serif'">A(2,2)</span><span style="font-size:16px;font-family:宋体">、</span><span style="font-size:16px;font-family:'Times New Roman','serif'">B(5,-2)</span><span style="font-size:16px;font-family:宋体">，点</span><span style="font-size:16px;font-family:'Times New Roman','serif'">M</span><span style="font-size:16px;font-family: 宋体">在</span><span style="font-size:16px;font-family:'Times New Roman','serif'">x</span><span style="font-size:16px;font-family:宋体">轴上且</span><span style="font-size:16px;font-family:Symbol">Ð</span><span style="font-size:16px;font-family:'Times New Roman','serif'">AMB=90</span><span style="font-size:16px;font-family:Symbol">°</span><span style="font-size: 16px;font-family:宋体">，则_____。</span></p>      (1) <p><span style="font-size:16px;font-family:宋体">设</span><span style="font-size:16px;font-family:'Times New Roman','serif'">a,b,c</span><span style="font-size:16px;font-family:宋体">是</span><span style="font-size:16px;font-family:Symbol">D</span><span style="font-size:16px;font-family:'Times New Roman','serif'">ABC</span><span style="font-size:16px;font-family: 宋体">的三边长，且</span> </p></body></html>
+--NEXT.ITEM-BOUNDARY--

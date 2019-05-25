@@ -45,7 +45,7 @@ def deleteFiles(filename):
     os.remove(filename + '.docx')
 
 if __name__ == '__main__':
-    filename = '2011年卷'
+    filename = '上海大学2011年小学一年级物理卷'
     # createMdFile(filename, 'testesteststestet')
     
     convertFile(filename)

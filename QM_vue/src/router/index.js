@@ -81,7 +81,7 @@ export default new Router({
         },
         {
             path:'*',
-            redirect: '/QuestionBank/0'
+            redirect: '/QuestionBank/1'
         }
     ]
 });

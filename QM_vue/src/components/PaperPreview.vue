@@ -1,38 +1,24 @@
 <template>
   <div>
   <el-button @click.prevent="downloadMD">下载MD测试</el-button>
-  <div id="paperHTML" class="page">
-    <p>{{paperName}}</p>
+  <div v-html="questionsContent" class="page download"></div>
+<!--   <div id="paperHTML" class="page">
     <mavon-editor ref="md" class="inner-block mavon-editor"
     :subfield="false" defaultOpen="preview" :toolbarsFlag="false" :boxShadow="false"
-    v-model="questionsContent"
+    v-html="questionsContent"
     placeholder="缺少题干"
     :editable="false"/>
   <div class="block" v-for="question, index in questions" :key="index">
-  <div>
   </div>
-    
-    
-  </div>
-</div>
+</div> -->
 </div>
 </template>
 <script>
-import marked from 'marked';
 
-let rendererMD = new marked.Renderer();
-marked.setOptions({
-    renderer: rendererMD,
-    gfm: true,
-    tables: true,
-    breaks: false,
-    pedantic: false,
-    sanitize: false,
-    smartLists: true,
-    smartypants: false
-});
-
+import saveAs from "file-saver";
+import "../../static/jquery.wordexport";
 export default {
+
   name: 'PaperPreview',
   data () {
     return {
@@ -46,7 +32,7 @@ export default {
   },
   methods: {
     getQuestionPoint(question_point_array){
-      // console.log(question_point_array);
+      // //console.log(question_point_array);
       let res = [];
       if(question_point_array.length < 1){
         return;
@@ -58,70 +44,86 @@ export default {
       return res;
     },
     downloadMD(){
-      let aTag = document.createElement('a');
-      let file_name = this.paperName + '.md';
-      let blob = new Blob([this.questionsContent], {'endings':'native'});　　// 这个content是下载的文件内容，自己修改
-      aTag.download = file_name;　　　　　　// 下载的文件名
-      aTag.href = URL.createObjectURL(blob);
-      aTag.click();　　　　　　　　　　　　　　
-      URL.revokeObjectURL(blob);
+      $('.download').wordExport(this.paperName);
+      // $('<div>' + this.questionsContent + '</div>').wordExport("test");
     },
     showBlankRes(question_answer){
-      console.log(question_answer);
+      //console.log(question_answer);
       let res = "";
       for(let i=0; i < question_answer.length; i++){
         res += question_answer[i].value + ' ';
       }
-      console.log(res);
+      //console.log(res);
       return res;
     },
-    md2word(){
-      this.$axios({
-        method:'post',
-        url:'/PaperPreview/md2word',
-        data:this.qs.stringify({    //这里是发送给后台的数据
-            paperName: this.paperName,
-            questionsContent: this.questionsContent,
-        })
-      }).then((response) =>{          //这里使用了ES6的语法
-        console.log(response)
-      }).catch((error) =>{
-          console.log(error);      //请求失败返回的数据
-      });
-    }
+    getPaperName(paperInfo){
+        if(paperInfo.paper_freename == '')
+          return paperInfo.paper_prefix + (this.paperInfo.paper_suffix||'');
+        return paperInfo.paper_freename;
+    },
   },
   mounted (){
 
     this.questions = JSON.parse(sessionStorage.getItem("uploadQuestions")).questions;
-    this.questions = this.questions.sort(function(a, b){return a.question_type - b.question_type});
+    this.questions = this.questions.sort(function(a, b){return a.question_type - b.question_type;});
     let paperInfo = JSON.parse(sessionStorage.getItem("uploadPaperInfo"));
-    this.paperName = paperInfo.paper_prefix + (paperInfo.paper_suffix || '') + '卷';
+    let suffix = ['填空题<br>','单选题<br>','多选题<br>','应用题<br>','综合题<br>'];
+    let prefix = ['一','二','三','四','五'];
+    let curType = 0, k = 0;
+    let q_count = 1;
+    this.paperName = this.getPaperName(paperInfo) + '卷';
+    this.questionsContent += '<h3 style="text-align:center">' +  this.paperName + '</h3>';
+    this.questionsContent += '<h4 style="text-align:center"> 学号&nbsp;___________&nbsp;姓名&nbsp;___________&nbsp;成绩&nbsp;___________ </h4><br>';
     for (let i=0; i < this.questions.length; i++){
-      this.questionsContent += (i+1) + ' . '+ this.questions[i].question_content + '\n\n';
+      if(k < 5 && curType != this.questions[i].question_type){
+        curType = this.questions[i].question_type;
+        this.questionsContent += '<p><span>' + prefix[k] +'、 '+ suffix[curType-1] + '</span></p>';
+        k += 1;
+        q_count = 1;
+      }
+      this.questionsContent += (q_count++) + ' . '+ this.questions[i].question_content;
       if (this.questions[i].question_type == 4){
-         this.questionsContent += " \\\n \\\n \\\n \\\n \\\n \\\n \\\n";
+         this.questionsContent += "<br><br><br><br><br><br><br>";
       }
       if (this.questions[i].question_type == 5){
         for (let j=0; j < this.questions[i].question_answer.length; j++){
-          console.log(this.questions[i].question_answer[j]);
-          this.questionsContent += '('+ (j+1) +') ' + this.questions[i].question_answer[j].question_content + '\n\n';
+          //console.log(this.questions[i].question_answer[j]);
+          this.questionsContent += '('+ (j+1) +') ' + this.questions[i].question_answer[j].question_content;
           if(this.questions[i].question_answer[j].question_type == 4){
-            this.questionsContent += ' \\\n \\\n \\\n \\\n \\\n';
+            this.questionsContent += '<br><br><br><br><br><br>';
           }
         }
       }
     }
-    this.md2word();
-    console.log(this.questionsContent);
+    // this.md2word();
+    // console.log(this.questionsContent);
 
 
     this.$nextTick(() => {
-      console.log(this.$refs);
-      console.log(this.$refs.md.$refs.vShowContent.parentElement.parentElement);
-      this.$refs.md.$refs.vShowContent.style.background="#ffffff";
-      this.$refs.md.$refs.vShowContent.style.lineHeight="200%";
-      this.$refs.md.$refs.vShowContent.parentElement.parentElement.style.border="0px";
-      // this.downloadAsPdf();
+      //console.log(this.$refs);
+      //console.log(this.$refs.md.$refs.vShowContent.parentElement.parentElement);
+      // this.$refs.md.$refs.vShowContent.style.background="#ffffff";
+      // this.$refs.md.$refs.vShowContent.style.lineHeight="200%";
+      // this.$refs.md.$refs.vShowContent.parentElement.parentElement.style.border="0px";
+      try{
+          $('img').style.height = "auto";
+          $('img').style.width = "auto";
+          $('img').style.maxWidth = "100%";
+          $('img').style.maxHeight = "100%";
+      }
+      catch(err){}
+      for (let i=0; i < $('img').length; i++){
+        $('img')[i].style.height = "auto";
+        $('img')[i].style.width = "auto";
+        $('img')[i].style.maxWidth = "100%";
+        $('img')[i].style.maxHeight = "100%";
+      }
+    //   console.log('img', $('img'));
+    //    $('img').attr('src', function () {
+    //     if (/^https?:\/\//.test(this.src) && this.src.indexOf(location.hostname) == -1)//不同源将img改为本域下的代理页面负责下载图片变为同源
+    //         return 'mydownloadpage.ashx?url=' + encodeURIComponent(this.src);
+    //     return this.src;
+    // })
     });
   },
   computed: {
@@ -162,6 +164,12 @@ body
     border-radius: 5px;
     background: white;
     box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+img{
+ width:auto;
+ height:auto;
+ max-width:100%;
+ max-height:100%;
 }
 .subpage
 {
