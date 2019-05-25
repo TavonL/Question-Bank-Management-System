@@ -115,7 +115,7 @@ def get_QuestionDetail():
 		sql = "SELECT little_question_no, little_question_type, little_question_content, \
 				little_question_answer, little_question_analy \
 		 		FROM little_question where super_question_no = {question_no} \
-		 		order by question_no".format(question_no=data["question_no"])
+		 		order by question_no".format(question_no=data)
 		res = excute_select(db, sql)
 		result = []
 		for item in res:
