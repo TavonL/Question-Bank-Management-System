@@ -85,6 +85,8 @@ def get_child_list(flag, point):
 
 def dfs_children(dic, current):
 	# 形成列表嵌套字典嵌套......
+	if "children" not in dic[current]:
+		return dic
 	length = len(dic[current]["children"])
 	for i in range(0, length):
 		item = dic[current]["children"][i]
