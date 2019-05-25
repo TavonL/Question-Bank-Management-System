@@ -52,7 +52,7 @@ def get_Question():
 	if data["conditionForm"]["knowledge_point"] != 0:
 		know = get_child_list("know", str(data["conditionForm"]["knowledge_point"]))
 		know = ", ".join(know)
-		knowledge_point = "AND know_point in (%s)" % know
+		knowledge_point = "AND know_no in (%s)" % know
 	
 	question_type = ""
 	if data["conditionForm"]["question_type"] != 0:
@@ -76,9 +76,10 @@ def get_Question():
 	db = get_db()
 	db_res = excute_select(db, sql)
 	# return jsonify(db_res)
-	length = min(data["quetisonNum"] + data["questionOffset"], len(db_res))
+
+	length = min(data["questionNum"] * (data["questionOffset"] + 1), len(db_res))
 	result = []
-	for i in range(data["questionOffset"], length):
+	for i in range(data["questionNum"] * data["questionOffset"], length):
 		item = list(db_res[i])
 		dic = {"question_no": str(item[0]),
 				"question_content": item[1],
@@ -92,12 +93,11 @@ def get_Question():
 @bp.route('/QuestionDetail', methods=('GET', ))
 def get_QuestionDetail():
 	# 查看题目详情
-	data = request.get_data()
-	data = json.loads(data)
+	data = request.args.get("question_no")
 
 	sql = "SELECT T1.question_diff, T1.question_type, T1.question_content, T1.question_answer, T1.question_analy, figure_url, paper_info, know_no \
 			FROM (SELECT * from question where question_no = {question_no}) AS T1 LEFT JOIN figure on figure.question_no = T1.question_no \
-			INNER JOIN paper ON paper.paper_no = T1.paper_no".format(question_no=data["question_no"])
+			INNER JOIN paper ON paper.paper_no = T1.paper_no".format(question_no=data)
 	# return jsonify(sql)
 	db = get_db()
 	db_res = excute_select(db, sql)
@@ -114,7 +114,8 @@ def get_QuestionDetail():
 		# 查看有没有子题目
 		sql = "SELECT little_question_no, little_question_type, little_question_content, \
 				little_question_answer, little_question_analy \
-		 		FROM little_question where super_question_no = {question_no} order by question_no".format(question_no=data["question_no"])
+		 		FROM little_question where super_question_no = {question_no} \
+		 		order by question_no".format(question_no=data["question_no"])
 		res = excute_select(db, sql)
 		result = []
 		for item in res:
@@ -157,7 +158,9 @@ def get_KnowledgePoints():
 		if super_no not in dic:
 			dic[super_no] = {"no": super_no, "label": super_name, "children" : []}
 		if str(item[0]) not in dic:
-			dic[str(item[0])] = {"no": str(item[0]), "label": item[1], "children" : []}
+			dic[str(item[0])] = {"no": str(item[0]), "label": item[1]}
+		if "children" not in dic[super_no]:
+			dic[super_no]["children"] = []
 		dic[super_no]["children"].append(str(item[0]))
 	# return jsonify(dic)
 	dic = dfs_children(dic, "0")
@@ -181,7 +184,9 @@ def get_SourcesNo():
 		if super_no not in dic:
 			dic[super_no] = {"no": super_no, "label": super_name, "children" : []}
 		if str(item[0]) not in dic:
-			dic[str(item[0])] = {"no": str(item[0]), "label": item[1], "children" : []}
+			dic[str(item[0])] = {"no": str(item[0]), "label": item[1]}
+		if "children" not in dic[super_no]:
+			dic[super_no]["children"] = []
 		dic[super_no]["children"].append(str(item[0]))
 	# return jsonify(dic)
 	dic = dfs_children(dic, "0")
