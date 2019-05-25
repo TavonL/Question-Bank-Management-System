@@ -111,6 +111,7 @@ export default {
           else{
             this.question = response.data;
           }
+          console.log('detail', this.question);
         }).catch((error) =>{
             //console.log(error);      //请求失败返回的数据
         });

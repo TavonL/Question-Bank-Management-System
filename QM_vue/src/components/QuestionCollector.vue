@@ -1,6 +1,7 @@
 <template>
   <div> 
-    <MainIndex activeIndex="2"></MainIndex>
+    <MainIndex activeIndex="1"></MainIndex>
+    <SubSearch @newcondition="updateCondition"></SubSearch @newcondition="updateCondition"> 
     <el-dialog
     title="查看详情"
     :visible.sync="questionDetailsVisible"
@@ -57,12 +58,12 @@
 </template>
 
 <script>
-
+import SubSearch from '@/components/SubSearch';
 import MainIndex from '@/components/MainIndex';
 import QuestionDetail from '@/components/QuestionDetail';
 export default {
     name:'QuestionBank',
-    components:{ MainIndex, QuestionDetail},
+    components:{SubSearch, MainIndex, QuestionDetail},
     data(){
         return{
             conditionForm:{},
@@ -72,31 +73,7 @@ export default {
             row: 5,
             col: 2,
             pageSize: 10,
-            curQuestions: [{
-              quetison_no: 123,
-              question_content: '<p>测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下测试一下试一下测试一下测试试一下测试一下测试试一下测试一下测试试一下测试一下测试试一下测试一下测试试一下测试一下测试试一下测试一下测试</p>',
-              figure_url:"https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg",
-              paper_name: '上海大学2019大学三年级微积分期末卷',
-            },{
-              question_content: '测试一下',
-              figure_url:"https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg",
-              paper_name: '上海大学2019大学三年级微积分期末卷',
-            },{
-              question_content: '测试一下',
-              figure_url:"https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg",
-              paper_name: '上海大学2019大学三年级微积分期末卷',
-            },{
-              question_content: '测试一下',
-              figure_url:"https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg",
-              paper_name: '上海大学2019大学三年级微积分期末卷',
-            },{
-              question_content: '测试一下',
-              figure_url:"https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg",
-              paper_name: '上海大学2019大学三年级微积分期末卷',
-            }],
-            pics: [
-              "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg"
-            ],
+            curQuestions: [],
             currentPage:1,
             totalPage:1000,
         };
@@ -108,7 +85,7 @@ export default {
       handleCurrentChange(val) {
         if((this.currentPage-1) % 10 != 0)
           return;
-        this.getQuestions(Math.floor((val-1)/10) * this.col * this.row, this.col*this.row*pageSize);
+        this.getQuestions(Math.floor((val-1)/10) * this.col * this.row, this.col*this.row*this.pageSize);
         //console.log(Math.floor((val-1)/10) * this.col * this.row);
         
       },
@@ -118,7 +95,8 @@ export default {
         this.question_index = index + 1;
       },
       nextQuestion(){
-        if(this.curQuestions.length < this.question_index){
+        if(this.curQuestions.length <= this.question_index){
+          this.HintNoMore();
           return;
         }
         this.question_no = this.curQuestions[this.question_index].question_no;
@@ -129,8 +107,14 @@ export default {
             this.question_index = 0;
             handleCurrentChange(this.currentPage);
           }
-          
         }
+      },
+      HintNoMore() {
+        const h = this.$createElement;
+        this.$notify({
+          title: '提示',
+          message: h('i', '已经没有更多的题目了')
+        });
       },
       storeUp(question_no){
         this.$axios({
@@ -143,21 +127,22 @@ export default {
         });
       },
       getQuestions(questionOffset, questionNum, updateTotalPage){
-        //console.log('condition',this.conditionForm);
+        console.log('condition',this.conditionForm);
         this.$axios({
           method:'post',
           url:'/api/get/Question',
-          data:this.qs.stringify({    //这里是发送给后台的数据
+          data:JSON.stringify({    //这里是发送给后台的数据
             questionOffset: questionOffset,
             questionNum: questionNum,
             conditionForm: this.conditionForm,
-          })
+          }),
         }).then((response) =>{          //这里使用了ES6的语法
-            //console.log(response);       //请求成功返回的数据
+            console.log(response.data);
             if(updateTotalPage){
-              this.totalPage = 1000; //待改
+              this.totalPage = Math.floor(response.data.quantity/(this.row*this.col)) + 1; 
+              console.log('update',this.totalPage);
             }
-
+            this.curQuestions = response.data.questions;
         }).catch((error) =>{
             //console.log(error);      //请求失败返回的数据
         });
@@ -165,15 +150,16 @@ export default {
       updateCondition(newCondition){
         this.conditionForm = newCondition;
         //console.log(this.conditionForm);
-        this.getQuestions(0, this.col*this.row*this.pageSize);
+        this.getQuestions(0, this.col*this.row*this.pageSize, true);
       }
     },
     created(){
 
-      this.getQuestions(0, this.col*this.row*this.pageSize);
+      
     },
     mounted(){
     this.$nextTick(() => {
+      // this.getQuestions(0, this.col*this.row*this.pageSize);
       //console.log(this.$refs);
       // for(let i=0; i < this.$refs.md.length; i++){
       //   this.$refs.md[i].$refs.vShowContent.style.background="#ffffff";

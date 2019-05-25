@@ -109,6 +109,7 @@
         diffOpts: this.DICTS.diffOpts,
         propertyOpts: this.DICTS.propertyOpts,
         typeOpts: this.DICTS.typeOpts,
+        gradeOpts: this.DICTS.gradeOpts,
     };
   },
     methods: {
@@ -121,7 +122,7 @@
           question_type: this.conditionForm.question_type,
           paper_subject: this.conditionForm.paper_subject,
           paper_source: this.getSourceNo(),
-          paper_grade: this.DICTS.gradeOpts[this.conditionForm.paper_grade].no,
+          paper_grade: this.gradeOpts[this.conditionForm.paper_grade].no,
           knowledge_point: this.getKnowPtNo(),
           paper_nature: this.conditionForm.paper_nature,
         }
@@ -169,6 +170,16 @@
     '$route':{
       immediate: true,
       handler (to, from) {
+        this.conditionForm = {
+          keyword: '',
+          question_diff:0,
+          question_type: 0,
+          paper_subject: 0,
+          paper_grade: 0,
+          knowledge_point: [0],
+          paper_nature: 0,
+          paper_source: [0]
+        },
         this.conditionForm.paper_grade = this.$route.params.grade - '0';
         //console.log(this.conditionForm.paper_grade);
         this.submitForm();

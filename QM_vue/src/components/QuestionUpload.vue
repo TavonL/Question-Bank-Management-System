@@ -27,7 +27,7 @@
       v-model="paperInfoForm.paper_source"
       class="cascader"
       placeholder="请选择试卷所属的市/区/学校"
-      :options="sourceOptions"
+      :options="sourceOpts"
       filterable
       :show-all-levels="false"
       change-on-select
@@ -139,11 +139,11 @@
           class="cascader"
           v-model="question.knowledge_point"
           placeholder="请选择该题知识点"
-          :options="pointOptions"
+          :options="knowOpts"
           filterable
           change-on-select
         ></el-cascader>
-        <el-select class="select" v-model="question.question_type" placeholder="请选择该题题型" size="medium">
+        <el-select class="el-select" v-model="question.question_type" placeholder="请选择该题题型" size="medium">
           <el-option
             v-for="item in typeOptions"
             :key="item.value"
@@ -156,7 +156,7 @@
           class="textarea"
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 15}"
-          placeholder="请输入题干"
+          placeholder="请使用编辑器编辑题干"
           v-model="question.question_content">
         </el-input>
         <br>
@@ -166,7 +166,7 @@
           class="textarea"
           type="textarea"
           :autosize="{ minRows: 4, maxRows: 15}"
-          placeholder="请输入解析"
+          placeholder="请使用编辑器编辑解析"
           v-model="question.question_analy">
         </el-input>
         <br>
@@ -254,41 +254,14 @@
           paper_suffix: "",
           paper_freename: "",
         },
-        sourceOptions:[{
-          value: 1,
-          label: '上海市',
-          no: 3,
-          children:[{
-            value: 1,
-            label: '宝山区',
-            no: 2,
-            children:[{
-              value: 1,
-              label: '上海大学',
-              no:1
-            }]
-          }]
-        }],
+        sourceOpts:[],
         gradeOptions:this.DICTS.gradeOpts.slice(1),
         subjectOptions:this.DICTS.subjectOpts.slice(1),
         curStep: 1,
         subjectDisabled:false,
         subjectHint:"请先选择试卷对应的年份",
 
-        pointOptions: [{
-            value: 1,
-            label: '解析几何',
-            no: 1,
-            children: [{
-              value: 1,
-              label: '椭圆',
-              no:2
-              }]
-            },{
-            value:1,
-            label: '排列组合',
-            no: 3,
-          }],
+        knowOpts: [],
         typeOptions:this.DICTS.typeOpts.slice(1),
         imageUrl: '',
         editorVisible: false,
@@ -310,12 +283,10 @@
         let grade = this.paperInfoForm.paper_grade;
         let subject = this.paperInfoForm.paper_subject;
         let res = '';
-        if (source.length > 0){
-
-          let temp = this.sourceOptions[this.paperInfoForm.paper_source[0]-1];
+        if (source.length > 0 && this.sourceOpts.length != 0){
+          let temp = this.sourceOpts[this.paperInfoForm.paper_source[0]-1];
           //console.log(temp);
           for (let i=1; i < this.paperInfoForm.paper_source.length; i++){
-            //console.log(temp);
             temp = temp.children[this.paperInfoForm.paper_source[i]-1];
           }
           res += temp.label;
@@ -330,7 +301,6 @@
         this.paperInfoForm.paper_prefix = res;
         //console.log(res);
         return res;
-
       }
     },
     methods: {
@@ -351,14 +321,14 @@
       getSourceNo(form, opts){
         let temp = opts[form.paper_source[0]-1];
         //console.log(temp);
-        for (let i=1; i < form.paper_source.length-1; i++){
+        for (let i=1; i < form.paper_source.length; i++){
           temp = temp.children[form.paper_source[i]-1];
         }
         return temp.no;
       },
       getKnowPtsNo(form, opts){
         let temp = opts[form.knowledge_point[0]-1];
-        for (let i=1; i < form.knowledge_point.length-1; i++){
+        for (let i=1; i < form.knowledge_point.length; i++){
           temp = temp.children[form.knowledge_point[i]-1];
         }
         return temp.no;
@@ -368,38 +338,63 @@
           return this.paperInfoForm.paper_prefix + (this.paperInfoForm.paper_suffix||'');
         return this.paperInfoForm.paper_freename;
       },
+      MoreInfo(type, hint) {
+        const h = this.$createElement;
+        this.$notify({
+          title: '提示',
+          message: h(type, hint)
+        });
+      },
       uploadPaper() {
         let paperInfoForm = {
           paper_subject: this.paperInfoForm.paper_subject[0],
           paper_grade: this.DICTS.gradeOpts[this.paperInfoForm.paper_grade[0]].children[this.paperInfoForm.paper_grade[1]].no,
-          paper_source: this.getSourceNo(this.paperInfoForm, this.sourceOptions),
+          paper_source: this.getSourceNo(this.paperInfoForm, this.sourceOpts),
           paper_year:this.paperInfoForm.paper_year,
           paper_name: this.getPaperName() + '卷',
         };
 
         let questionsForm = [];
         for (let i=0; i < this.questionsForm.questions.length; i++){
+          let answer = this.questionsForm.questions[i].question_answer;
+          if(this.questionsForm.questions[i].question_type == 3){
+            answer = answer[0].join(" ") + ' ' + answer[1];
+          }
+          else if(this.questionsForm.questions[i].question_type == 1){
+            answer = ''
+            for(let j=0; j < this.questionsForm.questions[i].question_answer.length; j++){
+              answer += this.questionsForm.questions[i].question_answer[j].value + ' ';
+            }
+          }
           questionsForm.push({
             question_diff: this.questionsForm.questions[i].question_diff,
             question_content: this.questionsForm.questions[i].question_content,
             question_type: this.questionsForm.questions[i].question_type,
-            knowledge_point: this.getKnowPtsNo(this.questionsForm.questions[i], this.pointOptions),
-            question_answer: this.questionsForm.questions[i].question_answer,
+            knowledge_point: this.getKnowPtsNo(this.questionsForm.questions[i], this.knowOpts),
+            question_answer:answer,
             question_analy: this.questionsForm.questions[i].question_analy,
           });
         }
         this.$axios({
             method:'post',
-            url:'/uploadPaper',
-            data:this.qs.stringify({    //这里是发送给后台的数据
-                paperInfoForm:this.paperInfoForm,
-                questionsForm:this.questions,
-            })
+            url:'/api/upload/Paper',
+            data:JSON.stringify({    //这里是发送给后台的数据
+                paperInfoForm: paperInfoForm,
+                questionsForm: questionsForm
+            }),
         }).then((response) =>{          //这里使用了ES6的语法
             //console.log(response);       //请求成功返回的数据
-            this.$router.push({name:'QuestionBank'});
-            sessionStorage.removeItem('uploadQuestions');
-            sessionStorage.removeItem('uploadPaperInfo');
+            if(response.code == -1){
+              this.MoreInfo('i','上传失败，请稍后再试');
+            }
+            else{
+              this.MoreInfo('i','上传成功!');
+              this.$router.push({ 
+                path: '/questionBank/1',
+              });
+              sessionStorage.removeItem('uploadQuestions');
+              sessionStorage.removeItem('uploadPaperInfo');
+          }
         }).catch((error) =>{
             //console.log(error);      //请求失败返回的数据
         });
@@ -479,7 +474,7 @@
         this.$nextTick(() => {
           if(this.curStep == 2){
             this.offsetTop =this.$refs.step.offsetTop;
-            console.log(this.$refs.step.offsetTop);
+            //console.log(this.$refs.step.offsetTop);
             window.addEventListener('scroll', this.handleScroll, true); 
           }
         });
@@ -541,13 +536,13 @@
       },
       handleScroll: function () {
         let _pos = this.$refs.step.getBoundingClientRect().top;
-        console.log('top', _pos);
+        //console.log('top', _pos);
         if(_pos < -30){
-          console.log("show!")
+          //console.log("show!")
           this.timelineShow = 1;
         }
         else{
-          console.log("hide")
+          //console.log("hide")
           this.timelineShow = 0;
         }
         for(let i=0; i < this.questionsForm.questions.length; i++){
@@ -559,19 +554,28 @@
   },
   created(){
     this.$axios({
-      method:'get',
-      url:'/getKnowldgePoints'
-    }).then((response) => {
-      //console.log(response);
-    }).catch((error) => {
-      //console.log(error);
-    });
+        method:'get',
+        url:'/api/get/KnowledgePoints'
+      }).then((response) => {
+        //console.log(response);
+        this.knowOpts = response.data;
+      }).catch((error) => {
+        //console.log(error);
+      });
+    this.$axios({
+        method:'get',
+        url:'/api/get/SourcesNo'
+      }).then((response) => {
+        //console.log(response);
+        this.sourceOpts = response.data;
+        //console.log(this.sourceOpts)
+      }).catch((error) => {
+      });
   },
   mounted(){
     // sessionStorage.clear();
     //console.log(sessionStorage.getItem("uploadPaperInfo"));
     if(sessionStorage.getItem("uploadPaperInfo") != null){
-      
       this.paperInfoForm = JSON.parse(sessionStorage.getItem("uploadPaperInfo"));
       //console.log(this.paperInfoForm);
     }
@@ -620,6 +624,7 @@
   margin-left: 1%;
   margin-right: 0.5%;
 }
+
 .el-select .el-input__inner {
   width: 360px;
 }

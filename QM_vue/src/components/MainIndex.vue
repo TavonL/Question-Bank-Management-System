@@ -1,7 +1,7 @@
 <template>
   <div>
   <el-row>
-    <el-col :span="12"><div><p style="text-align:left; margin-left:50px">测试测试试题库</p></div></el-col>
+    <el-col :span="12"><div><p style="text-align:left; margin-left:50px"><img :src="require('@/assets/logo.png')">试题库</p></div></el-col>
   </el-row>
   <el-row>
   <el-col :span="24"><div>
@@ -12,7 +12,7 @@
       <el-menu-item index="1-2">初中试题</el-menu-item>
       <el-menu-item index="1-3">高中试题</el-menu-item>
     </el-submenu>
-    <el-menu-item index="2">我的收藏</el-menu-item>
+    <!-- <el-menu-item index="2">我的收藏</el-menu-item> -->
     <el-menu-item index="3">上传试题</el-menu-item>
     <el-menu-item index="4">自由组卷</el-menu-item>
     <el-menu-item index="5">个人信息</el-menu-item>
@@ -63,5 +63,8 @@ export default {
 .input-with-select .el-input-group__prepend {
   background-color: #fff;
 }
-
+img{
+  width: 4%;
+  margin-right: 10px;
+}
 </style>

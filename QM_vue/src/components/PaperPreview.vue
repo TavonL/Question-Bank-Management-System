@@ -1,7 +1,9 @@
 <template>
   <div>
-  <el-button @click.prevent="downloadMD">下载MD测试</el-button>
+  <el-button @click.prevent="downloadDocx">下载试卷(word)</el-button>
+  <el-button @click.prevent="downloadDocx">下载答案(word)</el-button>
   <div v-html="questionsContent" class="page download"></div>
+  <div v-html="questionsAnswer" class="page download_answer"></div>
 <!--   <div id="paperHTML" class="page">
     <mavon-editor ref="md" class="inner-block mavon-editor"
     :subfield="false" defaultOpen="preview" :toolbarsFlag="false" :boxShadow="false"
@@ -25,10 +27,8 @@ export default {
       questions: [],
       questionsContent: '',
       paperName: '',
+      questionsAnswer:'',
     };
-  },
-  computed: {
-
   },
   methods: {
     getQuestionPoint(question_point_array){
@@ -43,8 +43,12 @@ export default {
       }
       return res;
     },
-    downloadMD(){
+    downloadDocx(){
       $('.download').wordExport(this.paperName);
+      // $('<div>' + this.questionsContent + '</div>').wordExport("test");
+    },
+    downloadDocx(){
+      $('.download_answer').wordExport(this.paperName + '答案');
       // $('<div>' + this.questionsContent + '</div>').wordExport("test");
     },
     showBlankRes(question_answer){
@@ -58,37 +62,75 @@ export default {
     },
     getPaperName(paperInfo){
         if(paperInfo.paper_freename == '')
-          return paperInfo.paper_prefix + (this.paperInfo.paper_suffix||'');
+          return paperInfo.paper_prefix + (paperInfo.paper_suffix||'');
         return paperInfo.paper_freename;
     },
   },
   mounted (){
-
     this.questions = JSON.parse(sessionStorage.getItem("uploadQuestions")).questions;
     this.questions = this.questions.sort(function(a, b){return a.question_type - b.question_type;});
+    console.log(this.questions);
     let paperInfo = JSON.parse(sessionStorage.getItem("uploadPaperInfo"));
     let suffix = ['填空题<br>','单选题<br>','多选题<br>','应用题<br>','综合题<br>'];
     let prefix = ['一','二','三','四','五'];
     let curType = 0, k = 0;
-    let q_count = 1;
     this.paperName = this.getPaperName(paperInfo) + '卷';
+
+    this.questionsAnswer = '<h3 style="text-align:center">' +  this.paperName + '</h3>';
     this.questionsContent += '<h3 style="text-align:center">' +  this.paperName + '</h3>';
     this.questionsContent += '<h4 style="text-align:center"> 学号&nbsp;___________&nbsp;姓名&nbsp;___________&nbsp;成绩&nbsp;___________ </h4><br>';
     for (let i=0; i < this.questions.length; i++){
+
       if(k < 5 && curType != this.questions[i].question_type){
         curType = this.questions[i].question_type;
         this.questionsContent += '<p><span>' + prefix[k] +'、 '+ suffix[curType-1] + '</span></p>';
+        this.questionsAnswer += '<p><span>' + prefix[k] +'、 '+ suffix[curType-1] + '</span></p>';
         k += 1;
-        q_count = 1;
       }
-      this.questionsContent += (q_count++) + ' . '+ this.questions[i].question_content;
+      if(this.questions[i].question_type < 4){
+        let answer = this.questions[i].question_answer;
+        if(this.questions[i].question_type == 3){
+          answer = answer[0].join(" ") + ' ' + answer[1];
+        }
+        else if(this.questions[i].question_type == 1){
+          answer = ''
+          for(let j=0; j < this.questions[i].question_answer.length; j++){
+            answer += this.questions[i].question_answer[j].value + ' ';
+          }
+        }
+        this.questionsAnswer += (i+1) + '. ' + answer + '; ';
+      }
+      if(this.questions[i].question_content.slice(0,3) == '<p>'){
+        this.questionsContent += '<p>' + (i+1) + '. '+ this.questions[i].question_content.slice(3);
+      }
+      else{
+        this.questionsContent += '<p>' + (i+1) + '. </p>'+ this.questions[i].question_content;
+      }
       if (this.questions[i].question_type == 4){
+          if(this.questions[i].question_answer.slice(0,3) == '<p>'){
+            this.questionsAnswer += '<p>' + (i+1) + '. ' + this.questions[i].question_answer.slice(3);
+          }
+          else{
+            this.questionsAnswer += '<p>' + (i+1) + '. </p>' + this.questions[i].question_answer;
+          }
          this.questionsContent += "<br><br><br><br><br><br><br>";
       }
       if (this.questions[i].question_type == 5){
         for (let j=0; j < this.questions[i].question_answer.length; j++){
           //console.log(this.questions[i].question_answer[j]);
-          this.questionsContent += '('+ (j+1) +') ' + this.questions[i].question_answer[j].question_content;
+          if(this.questions[i].question_answer[j].question_answer.slice(0,3) == '<p>'){
+            this.questionsAnswer += '<p>('+ (j+1) +') ' + this.questions[i].question_answer[j].question_answer.slice(3);
+          }
+          else{
+            this.questionsAnswer += '<p>('+ (j+1) +') </p>' + this.questions[i].question_answer[j].question_answer.slice(3);
+          }
+          
+          if(this.questions[i].question_answer[j].question_content.slice(0,3) == '<p>'){
+            this.questionsContent += '<p>('+ (j+1) +') ' + this.questions[i].question_answer[j].question_content.slice(3);
+          }
+          else{
+            this.questionsContent += '<p>('+ (j+1) +') </p>' + this.questions[i].question_answer[j].question_content.slice(3);
+          }
           if(this.questions[i].question_answer[j].question_type == 4){
             this.questionsContent += '<br><br><br><br><br><br>';
           }
@@ -97,7 +139,7 @@ export default {
     }
     // this.md2word();
     // console.log(this.questionsContent);
-
+    console.log(this.questionsAnswer);
 
     this.$nextTick(() => {
       //console.log(this.$refs);
@@ -126,13 +168,6 @@ export default {
     // })
     });
   },
-  computed: {
-    addIndex(){
-      return function(){
-        return marked(content);
-      };
-    }
-  }
 }
 </script>
 

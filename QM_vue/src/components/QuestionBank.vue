@@ -23,7 +23,7 @@
     </div>
     <el-row :gutter="10" v-for="o, i in row" :key="o" style="padding-top:20px">
     <el-col :span="2"><div><p></p></div></el-col>
-    <el-col :span="10" v-for="(question, index) in curQuestions.slice(i*col,(i+1)*col)" :key="index">
+    <el-col :span="10" v-for="(question, index) in curQuestions.slice((currentPage-1)*col*row+i*col,(currentPage-1)*col*row+(i+1)*col)" :key="index">
       <el-card class="box-card" shadow="hover" >
         <div class="item">
           <div style="height:300px; z-index:0">
@@ -37,7 +37,7 @@
           <div class="card-footer over" >
             <time class="time">试题来源：{{question.paper_name}}</time>
             <el-button type="text" class="button" @click.prevent="readMore(question.question_no, index)">查看详情</el-button>
-            <el-button type="text" class="button" @click.prevent="storeUp(question.question_no)">收藏</el-button>
+            <!-- <el-button type="text" class="button" @click.prevent="storeUp(question.question_no)">收藏</el-button> -->
           </div>
         </div>
       </el-card>

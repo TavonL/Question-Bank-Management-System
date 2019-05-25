@@ -51,7 +51,7 @@
     class="textarea"
     type="textarea"
     :autosize="{ minRows: 4, maxRows: 15}"
-    placeholder="请输入答案"
+    placeholder="请使用编辑器编辑小题题干"
     v-model="wordAnswer"
     @change="updateWordAnswer">
   </el-input>
@@ -78,7 +78,7 @@
     class="textarea"
     type="textarea"
     :autosize="{ minRows: 2, maxRows: 5}"
-    placeholder="请输入小题题干"
+    placeholder="请使用编辑器编辑小题题干"
     v-model="qst.question_content"
     @change="updateCompreAnswer">
   </el-input>
@@ -173,6 +173,7 @@ export default {
     },
     updateWordAnswer(newAnswer){
       this.wordAnswer = newAnswer;
+      this.editorVisible = false;
       this.$emit('newAnswer', this.wordAnswer);
     },
     updateCompreAnswer(newAnswer){
@@ -180,6 +181,7 @@ export default {
       this.$emit('newAnswer', this.subQuestions);
     },
     updateSubQuestionContent(newContent){
+      this.subEditorVisible = false;
       this.curQst.question_content = newContent;
       console.log(this.subQuestions);
     },
