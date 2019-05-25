@@ -1,5 +1,7 @@
 import functools
 import json
+import os
+import re
 from flask import (
 	Blueprint, g, request, session, url_for, jsonify
 )
@@ -14,15 +16,15 @@ from python_script.md2word import (
 
 from flaskr.uploader import Uploader
 
-bp = Blueprint('upload', __name__, url_prefix='/api/upload')
+bp = Blueprint('upload', __name__, url_prefix='/api/upload', static_folder='static')
 
 
 types = ['不限', '填空题', '单选题', '多选题', '应用题', '综合题']
 
 
-# @bp.route('/', methods=('POST', ))
-# def Hello_World():
-# 	return jsonify("Hello World!")
+@bp.route('/', methods=('GET', ))
+def Hello_World():
+	return jsonify(app.static_folder)
 
 
 @bp.route('/Paper', methods=('POST', ))
@@ -192,22 +194,33 @@ def upload_Paper():
 # 	return jsonify(1)
 
 
-@bp.route('/Fig', methods=('GET', 'POST'))
+@bp.route('/Fig', methods=('GET', 'POST', 'OPTIONS'))
 def upload_Fig():
 	mimetype = 'application/json'
 	action = request.args.get('action')
 	result = {}
-	if action == 'uploadimage':
-		fieldName = "upfile"
+
+	with open(os.path.join(bp.static_folder, 'ueditor', 'php', 
+							'config.json'), encoding = 'utf-8') as fp:
+		try:
+			CONFIG = json.loads(re.sub(r'\/\*.*\*\/', '', fp.read()))
+		except:
+			CONFIG = {}
+
+	if action == 'config':
+		# 初始化时，返回配置文件给客户端
+		result = CONFIG
+	elif action == 'uploadimage':
+		fieldName = CONFIG.get('imageFieldName')
 		config = {
-			"pathFormat": "/static/upload/image/{yyyy}{mm}{dd}/{time}{rand:6}",
+			"pathFormat": CONFIG['imagePathFormat'],
 			# 上传保存路径,可以自定义保存路径和文件名格式
-			"maxSize": 2048000, # 上传大小限制
-			"allowFiles": [".png", ".jpg", ".jpeg", ".gif", ".bmp"]
+			"maxSize": CONFIG['imageMaxSize'], # 上传大小限制
+			"allowFiles": CONFIG['imageAllowFiles']
 		}
 		if fieldName in request.files:
 			field = request.files[fieldName]
-			uploader = Uploader(field, config, app.static_folder)
+			uploader = Uploader(field, config, bp.static_folder)
 			result = uploader.getFileInfo()
 		else:
 			result['state'] = '上传接口出错'
