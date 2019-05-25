@@ -3,7 +3,7 @@ import json
 import os
 import re
 from flask import (
-	Blueprint, g, request, session, url_for, jsonify
+	Blueprint, g, request, session, url_for, jsonify, make_response
 )
 
 from flaskr.db import (
@@ -22,9 +22,9 @@ bp = Blueprint('upload', __name__, url_prefix='/api/upload', static_folder='stat
 types = ['不限', '填空题', '单选题', '多选题', '应用题', '综合题']
 
 
-@bp.route('/', methods=('GET', ))
-def Hello_World():
-	return jsonify(app.static_folder)
+# @bp.route('/', methods=('GET', ))
+# def Hello_World():
+# 	return jsonify(app.static_folder)
 
 
 @bp.route('/Paper', methods=('POST', ))
@@ -71,7 +71,7 @@ def upload_Paper():
 					paper=paper_no, type=types[item["question_type"]],
 					diff=item["question_diff"], content=item["question_content"],
 					answer=item["question_answer"], analy=item["question_analy"],
-					know_no=item["question_point"]
+					know_no=item["knowledge_point"]
 					)
 			db_res = excute_insert(db, sql)
 			# return jsonify(db_res)
@@ -84,7 +84,7 @@ def upload_Paper():
 				VALUES ({paper},'{type}',{diff},'{content}','{analy}',{know_no})".format(
 					paper=paper_no, type=types[item["question_type"]],
 					diff=item["question_diff"], content=item["question_content"],
-					analy=item["question_analy"], know_no=item["question_point"]
+					analy=item["question_analy"], know_no=item["knowledge_point"]
 					)
 			# return jsonify(sql)
 			db_res = excute_insert(db, sql)
@@ -98,7 +98,7 @@ def upload_Paper():
 				AND question_analy='{analy}' AND know_no={know_no}".format(
 					paper=paper_no, type=types[item["question_type"]],
 					diff=item["question_diff"], content=item["question_content"],
-					analy=item["question_analy"], know_no=item["question_point"]
+					analy=item["question_analy"], know_no=item["knowledge_point"]
 				)
 			db_res = excute_select(db, sql)
 			# return jsonify(db_res)
@@ -243,99 +243,56 @@ def upload_Fig():
 	return res
 
 
+@bp.route('/Schools', methods=('POST', ))
+def upload_Schools():
+	data = request.get_data()
+	data = json.loads(data)
+	code = 0
+	db = get_db()
+	# sql = "SELECT school_no FROM school WHERE school_name={super} \
+	# 	".format(super=data["parent_name"])
+	# db_res = db.excute_select()
+	# if db_res == ():
+	# 	return jsonify({"code":-1})
+	# super_no = db_res[0][0]
+	if data["opt"] == "add":
+		sql = "INSERT INTO school(school_name, school_nature, super_no) VALUES \
+			  ('{name}', '{nature}', {super})".format(
+				name=data["school_name"], nature=data["school_nature"], 
+				super=data["parent_no"]
+				)
+		db_res = excute_insert(db, sql)
+	elif data["opt"] == "del":
+		sql = "DELETE FROM school WHERE school_name='{name}'".format(
+			name=data["school_name"])
+		db_res = excute_delete(db, sql)
+	if db_res == 'Error':
+		code = -1
+	return jsonify({"code":code})
 
 
-# def upload():
-#	 """UEditor文件上传接口
-
-#	 config 配置文件
-#	 result 返回结果
-#	 """
-#	 mimetype = 'application/json'
-#	 result = {}
-#	 action = request.args.get('action')
-
-#	 # 解析JSON格式的配置文件
-#	 with open(os.path.join(app.static_folder, 'ueditor', 'php',
-#							'config.json')) as fp:
-#		 try:
-#			 # 删除 `/**/` 之间的注释
-#			 CONFIG = json.loads(re.sub(r'\/\*.*\*\/', '', fp.read()))
-#		 except:
-#			 CONFIG = {}
-
-#	 if action == 'config':
-#		 # 初始化时，返回配置文件给客户端
-#		 result = CONFIG
-
-#	 elif action in ('uploadimage', 'uploadfile', 'uploadvideo'):
-#		 # 图片、文件、视频上传
-#		 if action == 'uploadimage':
-#			 fieldName = CONFIG.get('imageFieldName')
-#			 config = {
-#				 "pathFormat": CONFIG['imagePathFormat'],
-#				 "maxSize": CONFIG['imageMaxSize'],
-#				 "allowFiles": CONFIG['imageAllowFiles']
-
- 
-
-#		 if fieldName in request.files:
-#			 field = request.files[fieldName]
-#			 uploader = Uploader(field, config, app.static_folder)
-#			 result = uploader.getFileInfo()
-#		 else:
-#			 result['state'] = '上传接口出错'
-
-
-
-#	 else:
-#		 result['state'] = '请求地址出错'
-
-#	 result = json.dumps(result)
-
-#	 if 'callback' in request.args:
-#		 callback = request.args.get('callback')
-#		 if re.match(r'^[\w_]+$', callback):
-#			 result = '%s(%s)' % (callback, result)
-#			 mimetype = 'application/javascript'
-#		 else:
-#			 result = json.dumps({'state': 'callback参数不合法'})
-
-#	 res = make_response(result)
-#	 res.mimetype = mimetype
-#	 res.headers['Access-Control-Allow-Origin'] = '*'
-#	 res.headers['Access-Control-Allow-Headers'] = 'X-Requested-With,X_Requested_With'
-#	 return res
-
-
-# if __name__ == '__main__':
-#	 app.run(debug=True)
-
-
-
-
-
-
-
-
-
-
-
-# @bp.route('/storeUp', methods=('POST', ))
-# def storeUp():
-
-
-
-
-# @bp.route('/Fig', methods=('POST', ))
-# def upload_Paper():
-# 	# 上传图片
-# 	data = request.get_data()
-# 	data = json.loads(data)
-
-# @bp.route('/Hello', methods=('POST', ))
-# def Test():
-# 	# data = request.get_data()
-# 	# data = json.loads(data)
-# 	data = request.form['question']
-# 	return jsonify(data)
+@bp.route('/KnowledgePoints', methods=('POST', ))
+def upload_KnowledgePoints():
+	data = request.get_data()
+	data = json.loads(data)
+	code = 0
+	db = get_db()
+	# sql = "SELECT know_no FROM know WHERE know_name={super} \
+	# 	".format(super=data["parent_name"])
+	# db_res = db.excute_select()
+	# if db_res == ():
+	# 	return jsonify({"code":-1})
+	# super_no = db_res[0][0]
+	if data["opt"] == "add":
+		sql = "INSERT INTO know(know_name, super_no) VALUES \
+			  ('{name}', {super})".format(
+				name=data["know_name"], super=data["parent_no"]
+				)
+		db_res = excute_insert(db, sql)
+	elif data["opt"] == "del":
+		sql = "DELETE FROM know WHERE know_name='{name}'".format(
+			name=data["know_name"])
+		db_res = excute_delete(db, sql)
+	if db_res == 'Error':
+		code = -1
+	return jsonify({"code":code})

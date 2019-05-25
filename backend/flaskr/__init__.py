@@ -24,15 +24,16 @@ def create_app(test_config=None):
     #     # load the test config if passed in
     #     app.config.from_mapping(test_config)
 
-    @app.route('/', methods=['GET'])
-    def ping_pong():
-        return jsonify('Hello World!')
+    # @app.route('/', methods=['GET'])
+    # def ping_pong():
+    #     return jsonify(app.static_folder)
 
     from flaskr import db
     db.init_app(app)
 
-    from flaskr import api_auth, api_get
+    from flaskr import api_auth, api_get, api_upload
     app.register_blueprint(api_auth.bp)
     app.register_blueprint(api_get.bp)
+    app.register_blueprint(api_upload.bp)
 
     return app

@@ -128,7 +128,7 @@ def get_QuestionDetail():
 				  }
 			result.append(dic)
 		dic = { "code":code , 
-				"question_diff":str(db_res[0]), 
+				"question_diff":db_res[0], 
 				"question_type":str(types.index(db_res[1])),
 				"question_content":db_res[2],
 				"question_answer":db_res[3],
