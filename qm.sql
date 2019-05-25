@@ -162,13 +162,13 @@ CREATE TABLE `paper` (
   `paper_subject` int(11) unsigned NOT NULL,
   `grade` int(11) NOT NULL,
   `paper_info` varchar(200) NOT NULL,
-  `source` varchar(45) NOT NULL,
+  `source` int(11) unsigned NOT NULL,
   PRIMARY KEY (`paper_no`),
-  KEY `C_idx` (`source`),
-  KEY `B_idx` (`grade`,`paper_subject`),
-  CONSTRAINT `B` FOREIGN KEY (`grade`, `paper_subject`) REFERENCES `gs_cor` (`grade`, `subject`),
-  CONSTRAINT `C` FOREIGN KEY (`source`) REFERENCES `school` (`school_name`)
-) ENGINE=InnoDB AUTO_INCREMENT=3 DEFAULT CHARSET=utf8 COMMENT='试卷（试卷编号，科目，年级，试卷信息，学校名）';
+  KEY `L` (`source`),
+  KEY `B_idx` (`paper_subject`),
+  CONSTRAINT `B` FOREIGN KEY (`paper_subject`) REFERENCES `know` (`know_no`),
+  CONSTRAINT `L` FOREIGN KEY (`source`) REFERENCES `school` (`school_no`)
+) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8 COMMENT='试卷（试卷编号，科目，年级，试卷信息，学校名）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -177,7 +177,7 @@ CREATE TABLE `paper` (
 
 LOCK TABLES `paper` WRITE;
 /*!40000 ALTER TABLE `paper` DISABLE KEYS */;
-INSERT INTO `paper` VALUES (1,2,10,'2018-2019第一学期期中试卷','测试高中'),(2,4,12,'2009-2010年普通高等学校招生统一考试','全国');
+INSERT INTO `paper` VALUES (1,2,10,'2018-2019第一学期期中试卷',18),(2,4,12,'2009-2010年普通高等学校招生统一考试',1),(3,4,12,'2009-2010年高等学校招生统一考试',1);
 /*!40000 ALTER TABLE `paper` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -192,7 +192,7 @@ CREATE TABLE `question` (
   `question_no` int(11) unsigned NOT NULL,
   `paper_no` int(11) unsigned NOT NULL,
   `question_type` varchar(45) NOT NULL,
-  `question_diff` varchar(45) NOT NULL,
+  `question_diff` int(11) NOT NULL,
   `question_content` varchar(500) DEFAULT NULL,
   `question_answer` varchar(500) DEFAULT NULL,
   `question_analy` varchar(500) DEFAULT NULL,
@@ -211,7 +211,7 @@ CREATE TABLE `question` (
 
 LOCK TABLES `question` WRITE;
 /*!40000 ALTER TABLE `question` DISABLE KEYS */;
-INSERT INTO `question` VALUES (1,1,'填空题','1','1+1=','2',NULL,16),(2,2,'单选题','1','卢瑟福提出了原子的核式结构模型，这一模型建立的基础是(A) 粒子的散射实验(B)对阴极射线的研究(C)天然放射性现象的发现(D)质子的发现','A','卢瑟福根据α粒子的散射实验结果，提出了院子的核式结构模型：原子核聚集了院子的全部正电荷和几乎全部质量，电子在核外绕核运转。',33),(3,2,'单选题','1','利用发波水槽得到的水面波形如a,b所示，则(A)图a、b均显示了波的干涉现象(B)图a、b均显示了波的衍射现象(C)图a显示了波的干涉现象，图b显示了波的衍射现象(D)图a显示了波的衍射现象，图b显示了波的干涉现象','D',NULL,39),(4,2,'单选题','1','声波能绕过某一建筑物传播而光波却不能绕过该建筑物，这是因为(A)声波是纵波，光波是横波(B)声波振幅大，光波振幅小(C)声波波长较长，光波波长很短(D)声波波速较小，光波波速很大','C','本题考查波的衍射条件：障碍物与波长相差不多。',40),(5,2,'单选题','1','现已建成的核电站的能量来自于(A)天然放射性元素衰变放出的能量(B)人工放射性同位素放出的的能量(C)重核裂变放出的能量(D)化学反应放出的能量','C',NULL,32),(6,2,'综合题','3','倾角&theta;=37&deg;，质量M=5kg的粗糙斜面位于水平地面上，质量m=2kg的木块置于斜面顶端，从静止开始匀加速下滑，经t=2s到达底端，运动路程L=4m,在此过程中斜面保持静止,求：',NULL,NULL,37);
+INSERT INTO `question` VALUES (1,1,'填空题',1,'1+1=','2',NULL,16),(2,2,'单选题',1,'卢瑟福提出了原子的核式结构模型，这一模型建立的基础是(A) 粒子的散射实验(B)对阴极射线的研究(C)天然放射性现象的发现(D)质子的发现','A','卢瑟福根据α粒子的散射实验结果，提出了院子的核式结构模型：原子核聚集了院子的全部正电荷和几乎全部质量，电子在核外绕核运转。',33),(3,2,'单选题',1,'利用发波水槽得到的水面波形如a,b所示，则(A)图a、b均显示了波的干涉现象(B)图a、b均显示了波的衍射现象(C)图a显示了波的干涉现象，图b显示了波的衍射现象(D)图a显示了波的衍射现象，图b显示了波的干涉现象','D',NULL,39),(4,2,'单选题',1,'声波能绕过某一建筑物传播而光波却不能绕过该建筑物，这是因为(A)声波是纵波，光波是横波(B)声波振幅大，光波振幅小(C)声波波长较长，光波波长很短(D)声波波速较小，光波波速很大','C','本题考查波的衍射条件：障碍物与波长相差不多。',40),(5,2,'单选题',1,'现已建成的核电站的能量来自于(A)天然放射性元素衰变放出的能量(B)人工放射性同位素放出的的能量(C)重核裂变放出的能量(D)化学反应放出的能量','C',NULL,32),(6,2,'综合题',3,'倾角&theta;=37&deg;，质量M=5kg的粗糙斜面位于水平地面上，质量m=2kg的木块置于斜面顶端，从静止开始匀加速下滑，经t=2s到达底端，运动路程L=4m,在此过程中斜面保持静止,求：',NULL,NULL,37);
 /*!40000 ALTER TABLE `question` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -223,10 +223,15 @@ DROP TABLE IF EXISTS `school`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `school` (
+  `school_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `school_name` varchar(45) NOT NULL,
   `school_nature` varchar(45) NOT NULL,
-  PRIMARY KEY (`school_name`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='学校（学校名，学校性质）';
+  `super_no` int(11) unsigned DEFAULT NULL,
+  PRIMARY KEY (`school_no`),
+  UNIQUE KEY `school_name_UNIQUE` (`school_name`) /*!80000 INVISIBLE */,
+  KEY `K_idx` (`super_no`),
+  CONSTRAINT `K` FOREIGN KEY (`super_no`) REFERENCES `school` (`school_no`)
+) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='学校（学校名，学校性质）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -235,7 +240,7 @@ CREATE TABLE `school` (
 
 LOCK TABLES `school` WRITE;
 /*!40000 ALTER TABLE `school` DISABLE KEYS */;
-INSERT INTO `school` VALUES ('全国','国级'),('测试初中','公办普通初中'),('测试高中','公办普通高中');
+INSERT INTO `school` VALUES (1,'上海市','国家级',NULL),(2,'浦东新区','市级',1),(3,'黄浦区','市级',1),(4,'静安区','市级',1),(5,'徐汇区','市级',1),(6,'长宁区','市级',1),(7,'普陀区','市级',1),(8,'虹口区','市级',1),(9,'杨浦区','市级',1),(10,'宝山区','市级',1),(11,'闵行区','市级',1),(12,'嘉定区','市级',1),(13,'金山区','市级',1),(14,'松江区','市级',1),(15,'青浦区','市级',1),(16,'奉贤区','市级',1),(17,'崇明区','市级',1),(18,'测试高中','公立',10);
 /*!40000 ALTER TABLE `school` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -273,4 +278,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-22 20:59:55
+-- Dump completed on 2019-05-25 15:16:04
