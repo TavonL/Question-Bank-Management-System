@@ -40,7 +40,7 @@ def get_Question():
 	
 	paper_source = ""
 	if data["conditionForm"]["paper_source"] != 0:
-		source = get_parent_no_list("source", str(data["conditionForm"]["paper_source"]))
+		source = get_child_list("source", str(data["conditionForm"]["paper_source"]))
 		paper_source = "AND source in ({0})".format(", ".join(source))
 	# return jsonify(paper_source)
 	paper_nature = ""
