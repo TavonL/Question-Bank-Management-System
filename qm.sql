@@ -78,7 +78,7 @@ CREATE TABLE `know` (
   PRIMARY KEY (`know_no`),
   UNIQUE KEY `know_name_UNIQUE` (`know_name`),
   KEY `A_idx` (`super_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8;
+) ENGINE=InnoDB AUTO_INCREMENT=42 DEFAULT CHARSET=utf8;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -124,10 +124,10 @@ DROP TABLE IF EXISTS `little_question`;
  SET character_set_client = utf8mb4 ;
 CREATE TABLE `little_question` (
   `little_question_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
-  `little_question_type` varchar(45) NOT NULL,
-  `little_question_content` varchar(500) DEFAULT NULL,
-  `little_question_answer` varchar(500) DEFAULT NULL,
-  `little_question_analy` varchar(500) DEFAULT NULL,
+  `little_question_type` varchar(20) NOT NULL,
+  `little_question_content` mediumtext,
+  `little_question_answer` mediumtext,
+  `little_question_analy` mediumtext,
   `super_question_no` int(11) unsigned NOT NULL,
   PRIMARY KEY (`little_question_no`),
   KEY `H_idx` (`super_question_no`),
@@ -186,11 +186,11 @@ DROP TABLE IF EXISTS `question`;
 CREATE TABLE `question` (
   `question_no` int(11) unsigned NOT NULL AUTO_INCREMENT,
   `paper_no` int(11) unsigned NOT NULL,
-  `question_type` varchar(45) NOT NULL,
+  `question_type` varchar(20) NOT NULL,
   `question_diff` int(11) NOT NULL,
-  `question_content` varchar(500) DEFAULT NULL,
-  `question_answer` varchar(500) DEFAULT NULL,
-  `question_analy` varchar(500) DEFAULT NULL,
+  `question_content` mediumtext,
+  `question_answer` mediumtext,
+  `question_analy` mediumtext,
   `know_no` int(11) unsigned DEFAULT NULL,
   PRIMARY KEY (`question_no`),
   KEY `D_idx` (`paper_no`),
@@ -226,7 +226,7 @@ CREATE TABLE `school` (
   UNIQUE KEY `school_name_UNIQUE` (`school_name`) /*!80000 INVISIBLE */,
   KEY `K_idx` (`super_no`),
   CONSTRAINT `K` FOREIGN KEY (`super_no`) REFERENCES `school` (`school_no`)
-) ENGINE=InnoDB AUTO_INCREMENT=19 DEFAULT CHARSET=utf8 COMMENT='学校（学校名，学校性质）';
+) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8 COMMENT='学校（学校名，学校性质）';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -273,4 +273,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2019-05-25 18:04:23
+-- Dump completed on 2019-05-26 22:51:54
