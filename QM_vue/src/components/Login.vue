@@ -2,8 +2,8 @@
 <template>
   <el-form :model="loginForm" :rules="rules" ref="LoginForm" label-position="left" label-width="0px" class="demo-ruleForm login-container">
     <h3 class="title">试题库登录</h3>
-    <el-form-item prop="account">
-      <el-input type="text" v-model="loginForm.account" auto-complete="off" placeholder="账号"></el-input>
+    <el-form-item prop="username">
+      <el-input type="text" v-model="loginForm.username" auto-complete="off" placeholder="账号"></el-input>
     </el-form-item>
     <el-form-item prop="password">
       <el-input type="password" v-model="loginForm.password" auto-complete="off" placeholder="密码"></el-input>
@@ -23,11 +23,11 @@ export default {
     return {
       logining: false,
       loginForm: {
-        account: '',
+        username: '',
         password: ''
       },
       rules: {
-        account: [
+        username: [
           { required: true, message: '请输入账号', trigger: 'blur' }
         ],
         checkPass: [
@@ -38,12 +38,32 @@ export default {
     }
   },
   methods: {
-    handleSubmit () {
-      var _this = this
-      _this.$refs.LoginForm.validate((valid) => {
-        this.$router.push({ path: '/' })
-      })
-    }
+    // handleSubmit () {
+    //   this.$refs.LoginForm.validate((valid) => {
+    //     this.$axios({
+    //       method:'post',
+    //       url:'/login',
+    //       data:this.qs.stringify({
+    //         username: this.loginForm.username,
+    //         password: Base64.encode(_this.loginForm.password),
+    //       })
+    //     }).then((response) =>{
+    //         console.log(response); 
+
+
+    //         localStorage.setItem('token', token);
+    //         commit('auth_success', token, user)
+    //         resolve(resp)
+    //         axios.defaults.headers.common['Authorization'] = token
+    //         this.$router.push({ path: '/' })
+    //     }).catch((error) =>{
+    //         console.log(error);
+    //         commit('auth_error', err);
+    //         reject(err);
+    //     });
+        
+    //   })
+    // }
   }
 }
 </script>
