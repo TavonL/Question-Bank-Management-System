@@ -13,6 +13,18 @@
       :filter-node-method="filterNode"
       ref="kpTree">
     </el-tree>
+    <el-dialog title="添加知识点" :visible.sync="dialogFormVisible">
+  <el-form :model="form">
+    <el-form-item label="知识点名称" :label-width="formLabelWidth">
+      <el-input v-model="form.name" auto-complete="off"></el-input>
+    </el-form-item>
+    
+  </el-form>
+  <div slot="footer" class="dialog-footer">
+    <el-button @click="dialogFormVisible = false">取 消</el-button>
+    <el-button type="primary" @click="submitForm">确 定</el-button>
+  </div>
+</el-dialog>
   </div>
 </template>
 
@@ -25,6 +37,13 @@ export default {
       return {
         data: '',
         filterText: '',
+        addData:'',
+        node:'',
+        form:{
+          name:'',
+        },
+        dialogFormVisible:false
+
       }
     },
     watch: {
@@ -37,19 +56,75 @@ export default {
         if (!value) return true;
         return data.label.indexOf(value) !== -1;
       },
-      append(data) {
-        const newChild = { no: 'add', label: 'testtest', children: [] };
-        if (!data.children) {
-          this.$set(data, 'children', []);
-        }
-        data.children.push(newChild);
+      append(node,data) {
+        this.node=node;
+        this.addData=data;
+        this.dialogFormVisible=true;
+
+        //const newChild = { no: 'add', label: 'testtest', children: [] };
+        //if (!data.children) {
+         // this.$set(data, 'children', []);
+       // }
+       // data.children.push(newChild);
+      },
+      submitForm(){
+        this.dialogFormVisible=false;
+
+        this.$axios({
+        method:'post',
+        url:'/api/upload/KnowledgePoints',
+        data:JSON.stringify({    //这里是发送给后台的数据
+            know_name : this.form.name,
+	          parent_no : this.node.data.no,
+	          opt : "add",
+          }),
+      }).then((response) => {
+        this.getKPFromBackend()
+      }).catch((error) => {
+        alert(error);
+      });
+
       },
 
       remove(node, data) {
-        const parent = node.parent;
+        this.$confirm('此操作将删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        }).then(() => {
+          this.$message({
+            type: 'success',
+            message: '删除成功!'
+          });
+          //数据库用户表删除操作
+        //usersData.splice(this.pageSize*(this.currentPage-1)+index,1);
+       const parent = node.parent;
         const children = parent.data.children || parent.data;
         const index = children.findIndex(d => d.no === data.no);
-        children.splice(index, 1);
+        var deldata=children.splice(index, 1);
+        this.$axios({
+        method:'post',
+        url:'/api/upload/KnowledgePoints',
+        data:JSON.stringify({    //这里是发送给后台的数据
+            know_name : deldata[0].label,
+	          parent_no : deldata[0].no,
+	          opt : "del",
+          }),
+      }).then((response) => {
+        
+
+
+      }).catch((error) => {
+        alert(error);
+      });
+
+
+        }).catch(() => {
+          this.$message({
+            type: 'info',
+            message: '已取消删除'
+          });          
+        });
       },
       
       renderContent(h, { node, data, store }) {
@@ -57,7 +132,7 @@ export default {
           <span class="custom-tree-node">
             <span>{node.label}</span>
             <span>
-              <el-button  type="text" on-click={ () => this.append(data) }>添加类目</el-button>
+              <el-button  type="text" on-click={ () => this.append(node,data) }>添加类目</el-button>
               <el-button  type="text" on-click={ () => this.remove(node, data)} disabled={data.no<10}>删除</el-button>
             </span>
           </span>);

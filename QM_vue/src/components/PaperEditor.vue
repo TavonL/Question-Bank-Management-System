@@ -623,8 +623,8 @@ export default {
         }
         var str=''+school+'-'+grade+'-'+this.subjectOptions[this.form1.subject].label+'-'+paperInfo.paperTitle;
         localStorage.setItem(str, JSON.stringify(questions));
-        localStorage.setItem(str, JSON.stringify(paperInfo));
         this.$emit('childFn',str,paperInfo);
+
 
       },
       handleQuestionCreate(){

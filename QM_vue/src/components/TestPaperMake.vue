@@ -23,82 +23,123 @@
     </el-col>
     </el-row>
 <PaperEditor @childFn="parentFn"  v-if="addVisible"></PaperEditor>  
-<div v-if="!addVisible">
-    <el-row gutter="10" v-for="o, i in row" :key="o" style="padding-top:20px">
-    <el-col :span="2"><div><p></p></div></el-col>
-    <el-col :span="5" v-for="o, i in col" :key="o">
-      <el-card class="box-card" shadow="hover">
-        <div slot="header" class="clearfix">
-          <img :src="pics[o%1]" class="image">
-        </div>
-        <div class="item">
-          <span class="text">试卷标题</span>
-          <br>
-          <div style="float:right">
-            <time class="time">创建时间:2019.4.28</time>
-            <el-button type="text" class="button">删除</el-button>
-            <el-button type="text" class="button">查看</el-button>
-          </div>
-        </div>
-      </el-card>
-    </el-col>
-    <el-col :span="2"><div><p></p></div></el-col>
-    </el-row>
-    <el-row>
-    <el-col :span="24" class="block">  <div>
-    </div>
-    </el-col>
-    </el-row>
+  <div v-if="!addVisible">
+   <el-table
+    :data="paperList"
+    class='table'>
+    <el-table-column
+      label="日期"
+      width="500"
+      align="center">
+      <template slot-scope="scope">
+        <span style="margin-left: 10px">{{ scope.row.createdDate }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column
+      label="标签"
+      width="500"
+      align="center">
+      <template slot-scope="scope">
+        <span style="margin-left: 10px">{{ scope.row.key }}</span>
+      </template>
+    </el-table-column>
+    <el-table-column label="操作" align="center">
+      <template slot-scope="scope">
+        <el-button
+          size="mini"
+          @click="handleCheck(scope.$index)">查看</el-button>
+        <el-button
+          size="mini"
+          type="danger"
+          @click="handleDelete(scope.$index)">删除</el-button>
+      </template>
+    </el-table-column>
+  </el-table>
+  <el-dialog
+  title="查看"
+  :visible.sync="dialogVisible"
+  width="80%">
+  <MakedPaperPreview ></MakedPaperPreview >
+
+</el-dialog>
     </div>
   </div>
 </template>
-
 <script>
+import MakedPaperPreview from '@/components/MakedPaperPreview';
 import PaperEditor from '@/components/PaperEditor';
 import MainIndex from '@/components/MainIndex';
+import Dicts from '@/global/Dicts';
 export default {
     name:'TestPaperMake',
     components: {
             PaperEditor,
-            MainIndex
+            MainIndex,
+            MakedPaperPreview
         },
     data(){
         
         return{
-            qno:[],
-            row: 5,
-            col: 4,
-            pics: [
-              "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg"
-            ],
-            current:1,
             addVisible: false, 
-            paperList:[],        
+            paperList:[],  
+            dialogVisible:false,      
       };
     },
     methods: {
       handleAdd(){
           this.addVisible=true;
-
       },
       handleCancle(){
         this.addVisible=false;
       },
       parentFn(str,paperInfo){
+        
+        var myDate = new Date();
+        var paperItem={
+          key:str,
+          createdDate:paperInfo.createdDate,
+          createdTime:myDate.toLocaleString(),
+          paperInfo:paperInfo,
+        } 
+        this.paperList.push(paperItem);
+        localStorage.setItem('paperList', JSON.stringify(this.paperList));
+
         this.addVisible=false;
-      },   
+      },
+      handleCheck(index){
+        var questions = JSON.parse(localStorage.getItem(this.paperList[index].key));
+        var paperInfo = this.paperList[index].paperInfo
+        sessionStorage.getItem("MakedPaperQuestions",JSON.stringify(questions));
+        sessionStorage.setItem('MakedPaperInfo', JSON.stringify(paperInfo));
+        this.dialogVisible=true;
+      },
+      handleDelete(index){
+        
+        localStorage.removeItem(this.paperList[index].key);
+        this.paperList.splice(index,1);
+        localStorage.setItem('paperList', JSON.stringify(this.paperList));
+        if(this.paperList.length==0){
+          localStorage.removeItem("paperList");
+        }
+      },
+    
+
     },
     created() {
-      if(localStorage.getItem("paperList")!==''){
+      if(localStorage.getItem("paperList")!==null){
         this.paperList=JSON.parse(localStorage.getItem("paperList"));
       }
-    
     },
 };
 </script>
 
 <style>
 
+.table{
+  width: 90%;
+    margin-left: auto; 
+    margin-right: auto;
+}
  .text {
     font-size: 16px;
     align-content: center;
@@ -133,5 +174,12 @@ export default {
   }
   .block {
     padding-top: 20px;
+  }
+  .box-card {
+    width: 90%;
+    margin-left: auto; 
+    margin-right: auto;
+    margin-top: 50px;
+    margin-bottom: 50px;
   }
 </style>

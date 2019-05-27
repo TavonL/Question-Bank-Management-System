@@ -63,7 +63,8 @@
         <el-button
           size="mini"
           type="danger"
-          @click="handleDelete(scope.$index, scope.row)">删除</el-button>
+          @click="handleDelete(scope.$index, scope.row)"
+          :disabled="scope.row.disabled">删除</el-button>
       </template>
     </el-table-column>
      
@@ -124,18 +125,17 @@ import axios from 'axios';
             infoChangeSeen: true,
             changeButton: '完成',
             lastUserName:'',
+            disabled:true,
           }
         )
-        this.filterData=usersData;
-        this.tableData=this.filterData.slice(0,this.pageSize);
-        this.currentPage=1;
-        this.totalRecords=this.filterData.length;
+        this.handleFilter();
       },
       handleEdit(index, row) {
         if(row.changeButton=="编辑"){
           this.tableData[index].infoChangeSeen=true;
           this.tableData[index].changeButton="完成";
           this.tableData[index].lastUserName=this.tableData[index].userName;
+          this.tableData[index].disabled=true;
         }else{
           if( this.tableData[index].userName=== ''){
             this.$message({
@@ -176,11 +176,49 @@ import axios from 'axios';
           return;      
             }
           }
+          if(this.tableData[index].lastUserName===''){
+            this.tableData[index].lastUserName='none';
+            this.$axios({
+        method:'post',
+        url:'/api/auth/uploadUserMsg',
+        data:JSON.stringify({    //这里是发送给后台的数据
+            userName : this.tableData[index].userName,
+	          password : this.tableData[index].password,
+	          permission : this.tableData[index].permission,
+	          opt : "add",
+	          lastUserName: "none"
+          }),
+      }).then((response) => {
+
+
+      }).catch((error) => {
+        alert(error);
+      });
+          }
+           this.$axios({
+        method:'post',
+        url:'/api/auth/uploadUserMsg',
+        data:JSON.stringify({    //这里是发送给后台的数据
+            userName : this.tableData[index].userName,
+	          password : this.tableData[index].password,
+	          permission : this.tableData[index].permission,
+	          opt : "update",
+	          lastUserName: this.tableData[index].lastUserName,
+          }),
+      }).then((response) => {
+
+
+      }).catch((error) => {
+        alert(error);
+      });
+          
 
           this.tableData[index].infoChangeSeen=false;
           this.tableData[index].changeButton="编辑";
+          this.tableData[index].disabled=false;
           //this.usersData[this.pageSize*(this.currentPage-1)+index]=this.tableData[index];
           //数据库用户表单条修改，添加操作,
+
           this.$message({
             type: 'success',
             message: '修改成功！'
@@ -202,6 +240,22 @@ import axios from 'axios';
           //数据库用户表删除操作
         //usersData.splice(this.pageSize*(this.currentPage-1)+index,1);
         var delData=this.filterData.splice(this.pageSize*(this.currentPage-1)+index,1);
+        this.$axios({
+        method:'post',
+        url:'/api/auth/uploadUserMsg',
+        data:JSON.stringify({    //这里是发送给后台的数据
+            userName : delData[0].userName,
+	          password : delData[0].password,
+	          permission : delData[0].permission,
+	          opt : "del",
+	          lastUserName: delData[0].lastUserName,
+          }),
+      }).then((response) => {
+
+
+      }).catch((error) => {
+        alert(error);
+      });
         for(var i =0 ;i<usersData.length;i++)
         {
           if(delData[0].userName==usersData[i].userName)
@@ -258,13 +312,10 @@ import axios from 'axios';
         var that = this;
         const path = '/api/auth/getUsersMsg';
           axios.get(path).then(function (response) {
-            // 这里服务器返回的 response 为一个 json object，可通过如下方法需要转成 json 字符串
-            // 可以直接通过 response.data 取key-value
-            // 坑一：这里不能直接使用 this 指针，不然找不到对象
             var msg = response.data;
-            // 坑二：这里直接按类型解析，若再通过 JSON.stringify(msg) 转，会得到带双引号的字串
             usersData=msg;
             that.tableData=usersData.slice(0,5);
+            that.handleFilter();
             that.totalRecords = usersData.length;
           }).catch(function (error) {
             usersData=[{
@@ -276,6 +327,7 @@ import axios from 'axios';
               id:-1
             }];
             that.tableData=usersData.slice(0,5);
+            that.filterData=usersData;
             alert(error);
           })
       },
