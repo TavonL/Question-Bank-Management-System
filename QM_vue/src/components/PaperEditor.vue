@@ -13,6 +13,8 @@
 <el-button  class='nextButton'  type="primary" round @click="handleQuestionAdjust()" v-if='step2Visible'>下一步</el-button>
 <el-button  class='nextButton'  type="danger" round @click="handlePeriorStep2()" v-if='step3Visible'>上一步</el-button>
 <el-button  class='nextButton'  type="primary" round @click="handlePaperpreview()" v-if='step3Visible'>下一步</el-button>
+<el-button  class='nextButton'  type="danger" round @click="handlePeriorStep3()" v-if='step4Visible'>上一步</el-button>
+<el-button  class='nextButton'  type="primary" round @click="handleCom()" v-if='step4Visible'>完成</el-button>
 </el-card>
 </div>
 
@@ -186,7 +188,7 @@
   </el-form>
 </div>
 
-  <el-form :inline="true" :model="selectedTypes">
+  <el-form :inline="true" :model="selectedTypes" label-position="top">
 
   <div v-for="i in selectedTypes">
   <el-form-item label="题型" class='qinput'>
@@ -286,20 +288,13 @@
   :data="qdata"
   node-key="id"
   default-expand-all
-  @node-drag-start="handleDragStart"
-  @node-drag-enter="handleDragEnter"
-  @node-drag-leave="handleDragLeave"
-  @node-drag-over="handleDragOver"
-  @node-drag-end="handleDragEnd"
-  @node-drop="handleDrop"
   draggable
-  :allow-drop="allowDrop"
-  :allow-drag="allowDrag">
+  :allow-drop="allowDrop">
   </el-tree>
     </el-card >
 </div>
 <div class='step4' v-if='step4Visible'>
-<MakedPaperPreview></MakedPaperPreview >
+<MakedPaperPreview ></MakedPaperPreview >
 </div>
  </div>   
 </template>
@@ -329,36 +324,6 @@ export default {
         return{
           q_no:'2',
           qdata:[],
-          qsdata: [{
-          id: 1,
-          label: '一级 1',
-          children: [{
-            id: 4,
-            label: '二级 1-1',
-            
-          }]
-        }, {
-          id: 2,
-          label: '一级 2',
-          children: [{
-            id: 5,
-            label: '二级 2-1'
-          }, {
-            id: 6,
-            label: '二级 2-2'
-          }]
-        }, {
-          id: 3,
-          label: '一级 3',
-          children: [{
-            id: 7,
-            label: '二级 3-1'
-          }, {
-            id: 8,
-            label: '二级 3-2',
-            
-          }]
-        }],
         curstep:1,
         paperTitle:'',
         form1: {
@@ -401,38 +366,18 @@ export default {
         selectedTypes:[],
         data:[],
         qno:[],
+        arr:[],
+        sum:0,
         
         };
     },
     methods: {
-       handleDragStart(node, ev) {
-        console.log('drag start', node);
-      },
-      handleDragEnter(draggingNode, dropNode, ev) {
-        console.log('tree drag enter: ', dropNode.label);
-      },
-      handleDragLeave(draggingNode, dropNode, ev) {
-        console.log('tree drag leave: ', dropNode.label);
-      },
-      handleDragOver(draggingNode, dropNode, ev) {
-        console.log('tree drag over: ', dropNode.label);
-      },
-      handleDragEnd(draggingNode, dropNode, dropType, ev) {
-        console.log('tree drag end: ', dropNode && dropNode.label, dropType);
-      },
-      handleDrop(draggingNode, dropNode, dropType, ev) {
-        console.log('tree drop: ', dropNode.label, dropType);
-      },
       allowDrop(draggingNode, dropNode, type) {
-        if (dropNode.data.label === '二级 3-1') {
-
-          return (type !== 'inner'&&type !== 'next'&&type !== 'prev');
+        if (draggingNode.data.id === -1) {
+          return (type !== 'inner'&&draggingNode.data.id===dropNode.data.id);
         } else {
-          return false;
+          return (dropNode.data.id !== -1&&draggingNode.data.type===dropNode.data.type&&type !== 'inner');
         }
-      },
-      allowDrag(draggingNode) {
-        return draggingNode.data.label.indexOf('三级 3-2-2') === -1;
       },
       handlePOptionsChange(data){
         this.cityOptions=[];
@@ -504,18 +449,29 @@ export default {
         this.step2Visible=false;
         this.curstep=1;
         this.data=[];
+        this.qno=[];
       },
       handlePeriorStep2(){
         this.step2Visible=true;
         this.step3Visible=false;
         this.curstep=2;
+        this.qdata=[];
+        this.sum=0;
       },
       handlePeriorStep3(){
         this.step3Visible=true;
         this.step4Visible=false;
         this.curstep=3;
+        this.arr=[];
       },
       handleQuestionAdjust(){
+        if(this.paperTitle===''){
+          this.$message(
+              { message: '请填写试卷抬头!',
+                type: 'warning'
+                });
+            return;
+        }
         var qarr=[];
         var arr=[];
         var length=[];
@@ -527,7 +483,7 @@ export default {
             for(var k in this.data){
               if(this.data[k].key==this.qno[j]){
                 if(this.data[k].type_no==t){
-                  arr.push({id:this.qno[j],label:this.data[k].question_content});
+                  arr.push({id:this.qno[j],label:this.data[k].label,type:this.data[k].type_no});
                   l++;    
               }  
             } 
@@ -541,12 +497,12 @@ export default {
             return;
           }
         }
-        var sum=0;
+        
         for(var i in length){
-          
-          qarr.push({id:-1,label:Dicts.typeOpts[this.selectedTypes[i].type].label,children:arr.slice(0,1)});
-          sum+=length[i];
-          alert(arr.slice(sum,sum+length[i]));
+
+            qarr.push({id:-1,label:Dicts.typeOpts[this.selectedTypes[i].type].label,children:arr.slice(this.sum,this.sum+length[i])});
+         
+          this.sum+=length[i];
         }
         this.qdata=[].concat(qarr);
         
@@ -555,9 +511,120 @@ export default {
         this.curstep=3;
       },
       handlePaperpreview(){
+        for(var i in this.qdata){
+          for(var j in this.qdata[i].children){
+            this.$axios({
+          method:'get',
+          url:'/api/get/QuestionDetail?question_no='+this.qdata[i].children[j].id,
+        }).then((response) =>{          //这里使用了ES6的语法
+        var qitem={
+              question_content:'',
+              question_answer:'',
+              question_analy:'',
+              knowledge_point:'',
+              question_diff:'',
+              paper_name:'',
+              question_type:'',
+              figure_url:'',
+              points:0,
+              i:i,
+              j:j,
+            };
+            for(var x in this.qdata){
+              for(var y in this.qdata[x].children){
+                if(this.qdata[x].children[y].label==response.data.question_content){
+                  qitem.i=x;
+                  qitem.j=y;
+                }
+              }
+            }
+            for(var z in this.selectedTypes){
+              if(this.selectedTypes[z].type==response.data.question_type){
+                qitem.points=this.selectedTypes[z].point;
+                break;
+              }
+            }
+
+          //
+          if(response.data.question_type == 5){
+            qitem.question_content = response.data.question_content+ '<br>';
+            for(let i=0; i<response.data.little_question.length; i++){
+              let index = '<el-tag>('+(i+1)+')</el-tag>'
+              qitem.question_content += index + response.data.little_question[i].question_content +'<br>';
+              qitem.question_answer += index + response.data.little_question[i].question_answer + '<br>';
+            }
+            qitem.question_analy = response.data.question_analy;
+            qitem.knowledge_point = response.data.knowledge_point;
+            qitem.question_diff = response.data.question_diff;
+            qitem.paper_name = response.data.paper_name;
+            qitem.figure_url=response.data.figure_url;
+            qitem.question_type=response.data.question_type;
+          }
+          else{
+            qitem.question_content = response.data.question_content;
+            qitem.question_answer = response.data.question_answer;
+            qitem.question_analy = response.data.question_analy;
+            qitem.knowledge_point = response.data.knowledge_point;
+            qitem.question_diff = response.data.question_diff;
+            qitem.paper_name = response.data.paper_name;
+            qitem.figure_url=response.data.figure_url;
+            qitem.question_type=response.data.question_type;
+          }
+          this.arr.push(qitem);
+          if(this.arr.length==this.sum){
+            this.arr.sort(this.sortq)
+            this.handleCallback();
+          }
+        }).catch((error) =>{
+            alert(error);      //请求失败返回的数据
+        });       
+          }
+        }
+      },
+      sortq(a,b){
+        if(a.i==b.i){
+          return a.j-b.j;
+        }else{
+          return a.i-b.i;
+        }
+
+      },
+      handleCallback(){
+        var myDate = new Date();
+
+        var paperInfo={
+          createdDate:myDate.toLocaleDateString(),
+          school:this.form1.school,
+          subject:this.form1.subject,
+          grade:this.form1.grade,
+          totalScore:this.form1.mark,
+          paperTitle:this.paperTitle,
+        }
+        sessionStorage.setItem('MakedPaperQuestions', JSON.stringify(this.arr));
+        sessionStorage.setItem('MakedPaperInfo', JSON.stringify(paperInfo));
         this.step3Visible=false;
         this.step4Visible=true;
         this.curstep=4;
+
+      },
+      handleCom(){
+        var questions = JSON.parse(sessionStorage.getItem("MakedPaperQuestions"));
+        var paperInfo = JSON.parse(sessionStorage.getItem("MakedPaperInfo"));
+        var grade='221';
+        var school='11';
+        var g= paperInfo.grade;
+        grade=this.gradeOptions[g[0]].children[g[1]-1].label;
+        var s = paperInfo.school
+        if(s.length==3){
+          school=this.schoolOptionsCas[s[0]-1].children[s[1]-1].children[s[2]-1].label;
+
+        }else{
+          school=this.schoolOptionsCas[s[0]-1].children[s[1]-1].children[s[2]-1].children[s[3]-1].label;
+        }
+        var str=''+school+'-'+grade+'-'+this.subjectOptions[this.form1.subject].label+'-'+paperInfo.paperTitle;
+        localStorage.setItem(str, JSON.stringify(questions));
+        localStorage.setItem(str, JSON.stringify(paperInfo));
+        this.$emit('childFn',str,paperInfo);
 
       },
       handleQuestionCreate(){
@@ -695,12 +762,6 @@ export default {
           }
         }
       },
-      handleChange(value, direction, movedKeys) {
-        
-      },
-      handleConfirm(){
-        this.$emit('childFn', this.qno);
-      },
       handleSchoolCas(l,objs){
         var reg1=/\u533a$/;
         var reg2=/\u53bf$/;
@@ -751,6 +812,7 @@ export default {
           axios.get(path).then(function (response) {
             var msg = response.data;
             that.schoolOptionsCas=msg;
+            
             that.handleSchoolCas(1,that.schoolOptionsCas);
           }).catch(function (error) {
             alert(error);
@@ -767,7 +829,6 @@ export default {
           })
       },
       getQuestionsFromBackend(diff,type_no,type,subject_no,sn,kpn,point){
-        
       var conditionForm = {
           keyword: '',
           question_diff: diff,
@@ -803,7 +864,23 @@ export default {
              this.data.push(q);
            }
         }
+        if(this.form1.auto){
+          this.qno=[];
+       for(var x in this.selectedTypes){
+         var num=this.selectedTypes[x].qnum;
+         for(var y in this.data){
+           if(this.selectedTypes[x].type==this.data[y].type_no&&num!=0){
+             this.qno.push(this.data[y].key);
+             num--;
+           } 
+         }
+         if(num>0){
+           break;
+         }
+       }
+        }
        
+
       }).catch((error) => {
         alert(error);
       });

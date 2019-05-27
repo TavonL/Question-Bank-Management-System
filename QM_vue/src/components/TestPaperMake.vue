@@ -22,9 +22,7 @@
     </div>
     </el-col>
     </el-row>
- <div v-if="addVisible">
-<PaperEditor @childFn="parentFn" ref="mychild"></PaperEditor>
- </div>  
+<PaperEditor @childFn="parentFn"  v-if="addVisible"></PaperEditor>  
 <div v-if="!addVisible">
     <el-row gutter="10" v-for="o, i in row" :key="o" style="padding-top:20px">
     <el-col :span="2"><div><p></p></div></el-col>
@@ -48,16 +46,6 @@
     </el-row>
     <el-row>
     <el-col :span="24" class="block">  <div>
-    <div class="block">
-      <el-pagination
-        @size-change="handleSizeChange"
-        @current-change="handleCurrentChange"
-        :current-page.sync="current"
-        :page-size="100"
-        layout="prev, pager, next, jumper"
-        :total="1000">
-      </el-pagination>
-    </div>
     </div>
     </el-col>
     </el-row>
@@ -68,13 +56,10 @@
 <script>
 import PaperEditor from '@/components/PaperEditor';
 import MainIndex from '@/components/MainIndex';
-import { mavonEditor } from 'mavon-editor'
-import 'mavon-editor/dist/css/index.css'
 export default {
     name:'TestPaperMake',
     components: {
             PaperEditor,
-            mavonEditor,
             MainIndex
         },
     data(){
@@ -87,55 +72,11 @@ export default {
               "https://ss0.bdstatic.com/94oJfD_bAAcT8t7mm9GUKT-xh_/timg?image&quality=100&size=b4000_4000&sec=1556457157&di=0eb2b58e7ff9b2b525c889a7310bc669&src=http://d.hiphotos.baidu.com/zhidao/pic/item/d043ad4bd11373f0d965c83fa50f4bfbfbed0433.jpg"
             ],
             current:1,
-            addVisible: false,
-            confirmVisible: false,
-            paperForm:{
-              titleMd:'',
-              questionList:[],
-            },
-            data: [{
-          id: 1,
-          label: '一级 1',
-          children: [{
-            id: 4,
-            label: '二级 1-1',
-            
-          }]
-        }, {
-          id: 2,
-          label: '一级 2',
-          children: [{
-            id: 5,
-            label: '二级 2-1'
-          }, {
-            id: 6,
-            label: '二级 2-2'
-          }]
-        }, {
-          id: 3,
-          label: '一级 3',
-          children: [{
-            id: 7,
-            label: '二级 3-1'
-          }, {
-            id: 8,
-            label: '二级 3-2',
-            
-          }]
-        }],
-        defaultProps: {
-          children: 'children',
-          label: 'label'
-        }
+            addVisible: false, 
+            paperList:[],        
       };
     },
     methods: {
-      handleSizeChange(val) {
-        console.log(`每页 ${val} 条`);
-      },
-      handleCurrentChange(val) {
-        console.log(`当前页: ${val}`);
-      },
       handleAdd(){
           this.addVisible=true;
 
@@ -143,12 +84,16 @@ export default {
       handleCancle(){
         this.addVisible=false;
       },
-      parentFn(qno){
-        this.qno=qno.slice(0);
-      },
-      
-       
-    }   
+      parentFn(str,paperInfo){
+        this.addVisible=false;
+      },   
+    },
+    created() {
+      if(localStorage.getItem("paperList")!==''){
+        this.paperList=JSON.parse(localStorage.getItem("paperList"));
+      }
+    
+    },
 };
 </script>
 
