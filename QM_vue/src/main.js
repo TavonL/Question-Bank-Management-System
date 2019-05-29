@@ -33,6 +33,7 @@ Vue.config.productionTip = false;
 
 
 import Dicts from '@/global/dicts.vue';
+
 Vue.prototype.DICTS = Dicts;
 /* eslint-disable no-new */
 new Vue({

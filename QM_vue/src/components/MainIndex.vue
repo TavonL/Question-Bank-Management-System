@@ -16,7 +16,9 @@
     <el-menu-item index="3">上传试题</el-menu-item>
     <el-menu-item index="4">自由组卷</el-menu-item>
     <el-menu-item index="5">个人信息</el-menu-item>
-    <el-menu-item index="6" disabled>管理员后台</el-menu-item>
+
+    <el-menu-item index="6" >管理员后台</el-menu-item>
+
     </el-menu>
   </div></el-col>
   </el-row>
@@ -35,7 +37,9 @@ export default {
   },
   methods: {
     handleSelect (key, keypath) {
-      var paths = ['/questionBank/', '/questionCollector', '/questionUpload', '/6', '/6','/6']
+
+      var paths = ['/questionBank/', '/questionCollector', '/questionUpload', '/testPaperMake', '/personalInfo','/adminBackend']
+
       console.log(keypath)
       if(keypath[0] == '1'){
         this.$router.push({ 

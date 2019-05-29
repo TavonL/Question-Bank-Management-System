@@ -7,6 +7,10 @@ import PersonalInfo from '@/components/PersonalInfo';
 import QuestionUpload from '@/components/QuestionUpload';
 import PaperPreview from '@/components/PaperPreview';
 import QuestionCollector from '@/components/QuestionCollector';
+import TestPaperMake from '@/components/TestPaperMake';
+import AdminBackend from '@/components/AdminBackend';
+
+
 Vue.use(Router);
 
 export default new Router({
@@ -44,16 +48,17 @@ export default new Router({
             }
         },
         {
-            path: '/5',
-            component: QuestionBank,
-            name: 'QuestionBank',
+
+            path: '/testPaperMake',
+            component: TestPaperMake,
+            name: 'TestPaperMake',
             meta: {
-                title: "试题上传",
+                title: "自由组卷",
                 requireAuth: true
             }
         },
         {
-            path: '/6',
+            path: '/personalInfo',
             component: PersonalInfo,
             name: 'PersonalInfo',
             meta: {
@@ -62,11 +67,11 @@ export default new Router({
             }
         },
         {
-            path: '/7',
-            component: QuestionBank,
-            name: 'QuestionBank',
+            path: '/adminBackend',
+            component: AdminBackend,
+            name: 'AdminBackend',
             meta: {
-                title: "试题库",
+                title: "管理员后台",
                 requireAuth: true
             }
         },

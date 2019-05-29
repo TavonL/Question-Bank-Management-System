@@ -153,7 +153,8 @@
         url:'/api/get/KnowledgePoints'
       }).then((response) => {
         console.log(response);
-        this.knowOpts.push.apply(response.data);
+        this.knowOpts=response.data;
+
       }).catch((error) => {
         //console.log(error);
       });
@@ -162,7 +163,8 @@
         url:'/api/get/SourcesNo'
       }).then((response) => {
         console.log(response);
-        this.sourceOpts.push.apply(response.data);
+        this.sourceOpts=response.data;
+
       }).catch((error) => {
       });
   },
