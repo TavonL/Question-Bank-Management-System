@@ -14,6 +14,7 @@
 前端
 ```shell
 cd QM_vue
+npm install
 npm run dev
 ```
 后端
