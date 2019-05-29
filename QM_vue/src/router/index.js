@@ -10,6 +10,7 @@ import QuestionCollector from '@/components/QuestionCollector';
 import TestPaperMake from '@/components/TestPaperMake';
 import AdminBackend from '@/components/AdminBackend';
 
+
 Vue.use(Router);
 
 export default new Router({
@@ -47,6 +48,7 @@ export default new Router({
             }
         },
         {
+
             path: '/testPaperMake',
             component: TestPaperMake,
             name: 'TestPaperMake',

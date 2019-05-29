@@ -91,7 +91,7 @@
           question_type: 0,
           paper_subject: 0,
           paper_grade: 0,
-          knowledge_point: [0,1,2],
+          knowledge_point: [0],
           paper_nature: 0,
           paper_source: [0]
         },
@@ -154,6 +154,7 @@
       }).then((response) => {
         console.log(response);
         this.knowOpts=response.data;
+
       }).catch((error) => {
         //console.log(error);
       });
@@ -163,6 +164,7 @@
       }).then((response) => {
         console.log(response);
         this.sourceOpts=response.data;
+
       }).catch((error) => {
       });
   },

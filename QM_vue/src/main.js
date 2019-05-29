@@ -32,7 +32,8 @@ Vue.config.productionTip = false;
 // axios.defaults.baseURL = 'http://localhost:5000';
 
 
-import Dicts from '@/global/Dicts.vue';
+import Dicts from '@/global/dicts.vue';
+
 Vue.prototype.DICTS = Dicts;
 /* eslint-disable no-new */
 new Vue({

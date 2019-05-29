@@ -140,6 +140,7 @@
         value: 2,
         label: '民办(私立)',
     }];
+
     function outputObj(obj) {
 	var description = "";
 	for (var i in obj) {
@@ -147,6 +148,7 @@
 	}
 	alert(description);
     }
+
     export default
     {
         subjectOpts,
@@ -155,5 +157,6 @@
         diffOpts,
         propertyOpts,
         outputObj,
+
     }
 </script>
