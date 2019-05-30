@@ -152,6 +152,7 @@ export default {
         this.conditionForm = newCondition;
         //console.log(this.conditionForm);
         this.getQuestions(0, this.col*this.row*this.pageSize, true);
+        console.log('request')
       }
     },
     created(){

@@ -25,77 +25,44 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
             // Embed all images using Data URLs
             var images = Array();
             var img = markup.find('img');
-            for (var i=0; i<img.length; i++){
-
-            }
             for (var i = 0; i < img.length; i++) {
-                img[i].onload = function() {
-                        var w = Math.min(img[i].width, options.maxWidth);
-                        console.log(img[i].width);
-                        var h = img[i].height * (w / img[i].width);
-                        img[i].crossOrigin = 'anonymous';
-                        // Calculate dimensions of output image
-                        img[i].src = img[i].src;
-                        
-                        // Create canvas for converting image to data UR
-                    img[i].onload = function(){
-                        var canvas = document.createElement("canvas");
-                        canvas.width = w;
-                        canvas.height = h;
-                        // Draw image to canvas
-                        // img[i].src = img[i].src;
-                        console.log('img',img[i]);
-                        var context = canvas.getContext('2d');
-                        context.drawImage(img[i], 0, 0, w, h);
-                        var uri = canvas.toDataURL("image/png/jpeg");
-                        img[i].src  = img[i].src
-                        img[i].width = w;
-                        img[i].height = h;
-                        // Save encoded image to array
-                        console.log('uri',uri);
-                        images[i] = {
-                            type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
-                            encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
-                            location: img[i].src,
-                            data: uri.substring(uri.indexOf(",") + 1)
-                        };
-                    }(i);
-
-                }(i);  
-
-                
-                // // Calculate dimensions of output image
-                // var w = Math.min(img[i].width, options.maxWidth);
-                // console.log(img[i].width);
-                // var h = img[i].height * (w / img[i].width);
-                // img[i].src = img[i].src;
-                // // Create canvas for converting image to data UR
-                // var canvas = document.createElement("CANVAS");
-                // canvas.width = w;
-                // canvas.height = h;
-                // // Draw image to canvas
-                // var context = canvas.getContext('2d');
-                // context.drawImage(img[i], 0, 0, w, h);
-                // console.log('weight&height',w,h);
-                // // Get data URL encoding of image
-                // var uri = canvas.toDataURL("image/png");
+                // Calculate dimensions of output image 
+                console.log(img[i])
+                console.log(img[i].src.slice(0,4))
+                if(img[i].src.slice(0,4) != 'data'){
+                    break;
+                }
+                var w = Math.min(img[i].width, options.maxWidth);
+                var h = img[i].height * (w / img[i].width);
+                // Create canvas for converting image to data URL  
+                var canvas = document.createElement("CANVAS");
+                canvas.width = w;
+                canvas.height = h;
+                // Draw image to canvas  
+                var context = canvas.getContext('2d');
+                context.drawImage(img[i], 0, 0, w, h);
+                // Get data URL encoding of image  
+                var uri = canvas.toDataURL("image/png");
                 // $(img[i]).attr("src", img[i].src);
-                // img[i].width = w;
-                // img[i].height = h;
-                // // Save encoded image to array
-                // console.log('uri',uri);
-                // images[i] = {
-                //     type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
-                //     encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
-                //     location: $(img[i]).attr("src"),
-                //     data: uri.substring(uri.indexOf(",") + 1)
-                // };
+                img[i].width = w;
+                img[i].height = h;
+                // Save encoded image to array  
+                images[i] = {
+                   type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
+                   encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
+                   location: $(img[i]).attr("src"),
+                   data: uri.substring(uri.indexOf(",") + 1)
+                };
+
                 // console.log('image', images[i])
             }
             console.log(images);
             // Prepare bottom of mhtml file with image data
             var mhtmlBottom = "\n";
             for (var i = 0; i < images.length; i++) {
+                if(images[i]==undefined){
+                    break;
+                }
                 mhtmlBottom += "--NEXT.ITEM-BOUNDARY\n";
                 mhtmlBottom += "Content-Location: " + images[i].location + "\n";
                 mhtmlBottom += "Content-Type: " + images[i].type + "\n";

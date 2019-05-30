@@ -346,9 +346,10 @@
         });
       },
       uploadPaper() {
+        console.log(this.paperInfoForm)
         let paperInfoForm = {
           paper_subject: this.paperInfoForm.paper_subject[0],
-          paper_grade: this.DICTS.gradeOpts[this.paperInfoForm.paper_grade[0]].children[this.paperInfoForm.paper_grade[1]].no,
+          paper_grade: this.DICTS.gradeOpts[this.paperInfoForm.paper_grade[0]].children[this.paperInfoForm.paper_grade[1]-1].no,
           paper_source: this.getSourceNo(this.paperInfoForm, this.sourceOpts),
           paper_year:this.paperInfoForm.paper_year,
           paper_name: this.getPaperName() + '卷',
@@ -375,29 +376,30 @@
             question_analy: this.questionsForm.questions[i].question_analy,
           });
         }
-        this.$axios({
-            method:'post',
-            url:'/api/upload/Paper',
-            data:JSON.stringify({    //这里是发送给后台的数据
-                paperInfoForm: paperInfoForm,
-                questionsForm: questionsForm
-            }),
-        }).then((response) =>{          //这里使用了ES6的语法
-            //console.log(response);       //请求成功返回的数据
-            if(response.code == -1){
-              this.MoreInfo('i','上传失败，请稍后再试');
-            }
-            else{
-              this.MoreInfo('i','上传成功!');
-              this.$router.push({ 
-                path: '/questionBank/1',
-              });
-              sessionStorage.removeItem('uploadQuestions');
-              sessionStorage.removeItem('uploadPaperInfo');
-          }
-        }).catch((error) =>{
-            //console.log(error);      //请求失败返回的数据
-        });
+        console.log(paperInfoForm);
+        // this.$axios({
+        //     method:'post',
+        //     url:'/api/upload/Paper',
+        //     data:JSON.stringify({    //这里是发送给后台的数据
+        //         paperInfoForm: paperInfoForm,
+        //         questionsForm: questionsForm
+        //     }),
+        // }).then((response) =>{          //这里使用了ES6的语法
+        //     //console.log(response);       //请求成功返回的数据
+        //     if(response.code == -1){
+        //       this.MoreInfo('i','上传失败，请稍后再试');
+        //     }
+        //     else{
+        //       this.MoreInfo('i','上传成功!');
+        //       this.$router.push({ 
+        //         path: '/questionBank/1',
+        //       });
+        //       sessionStorage.removeItem('uploadQuestions');
+        //       sessionStorage.removeItem('uploadPaperInfo');
+        //   }
+        // }).catch((error) =>{
+        //     //console.log(error);      //请求失败返回的数据
+        // });
       },
       checkQuestions(questions, mode=1){
         for(let i=0; i < questions.length; i++){
