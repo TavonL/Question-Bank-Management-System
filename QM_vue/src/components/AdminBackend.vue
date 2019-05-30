@@ -1,7 +1,7 @@
 <template>
   <div>
-    <MainIndex activeIndex="6"></MainIndex>
-  <el-tabs type="card" tab-position="left">
+  <MainIndex activeIndex="6"></MainIndex>
+  <el-tabs class="tabs"tab-position="left">
   <el-tab-pane label="用户管理">
     <AccountsManagement></AccountsManagement>
   </el-tab-pane>
@@ -44,6 +44,10 @@ export default {
 </script>
 
 <style>
-
+.tabs {
+  margin:1%;
+  margin-top: 2%;
+  margin-left: 0.5%;
+}
 
 </style>

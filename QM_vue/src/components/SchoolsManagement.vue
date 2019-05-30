@@ -4,7 +4,7 @@
   placeholder="输入关键字进行过滤"
   v-model="filterText">
 </el-input>
-    <el-tree
+    <el-tree class="tree"
       :data="data"
       node-key="no"
       default-expand-all
@@ -167,13 +167,17 @@ export default {
 </script>
 
 <style>
+.tree{
+  margin-top:1%;
+}
 .custom-tree-node {
     flex: 1;
     display: flex;
     align-items: center;
     justify-content: space-between;
-    font-size: 20px;
+    font-size: 14px;
     padding-right: 8px;
+    line-height:200%;
   }
 
 </style>

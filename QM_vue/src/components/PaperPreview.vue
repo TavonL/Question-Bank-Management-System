@@ -1,7 +1,7 @@
 <template>
   <div>
   <el-button @click.prevent="downloadDocx">下载试卷(word)</el-button>
-  <el-button @click.prevent="downloadDocx">下载答案(word)</el-button>
+  <el-button @click.prevent="downloadAnswerDocx">下载答案(word)</el-button>
   <div v-html="questionsContent" class="page download"></div>
   <div v-html="questionsAnswer" class="page download_answer"></div>
 <!--   <div id="paperHTML" class="page">
@@ -47,7 +47,7 @@ export default {
       $('.download').wordExport(this.paperName);
       // $('<div>' + this.questionsContent + '</div>').wordExport("test");
     },
-    downloadDocx(){
+    downloadAnswerDocx(){
       $('.download_answer').wordExport(this.paperName + '答案');
       // $('<div>' + this.questionsContent + '</div>').wordExport("test");
     },
@@ -118,7 +118,24 @@ export default {
       if (this.questions[i].question_type == 5){
         for (let j=0; j < this.questions[i].question_answer.length; j++){
           //console.log(this.questions[i].question_answer[j]);
-          if(this.questions[i].question_answer[j].question_answer.slice(0,3) == '<p>'){
+          if(this.questions[i].question_answer[j].question_type < 4){
+            // console.log('填空选择')
+            // console.log(this.questions[i].question_answer[j]);
+            let answer = this.questions[i].question_answer[j].question_answer;
+            if(this.questions[i].question_answer[j].question_type == 3){
+              answer = answer[0].join(" ") + ' ' + answer[1];
+            }
+            else if(this.questions[i].question_answer[j].question_type == 1){
+              // console.log('填空')
+              // console.log(this.questions[i].question_answer[j].question_answer);
+              answer = ''
+              for(let k=0; k < this.questions[i].question_answer[j].question_answer.length; k++){
+                answer += this.questions[i].question_answer[j].question_answer[k].value + ' ';
+              }
+            }
+            this.questionsAnswer += '<p>('+ (j+1) +') ' + answer + '; ';
+          }
+          else if(this.questions[i].question_answer[j].question_answer.slice(0,3) == '<p>'){
             this.questionsAnswer += '<p>('+ (j+1) +') ' + this.questions[i].question_answer[j].question_answer.slice(3);
           }
           else{
@@ -138,7 +155,7 @@ export default {
       }
     }
     // this.md2word();
-    // console.log(this.questionsContent);
+    console.log(this.questionsContent);
     console.log(this.questionsAnswer);
 
     this.$nextTick(() => {

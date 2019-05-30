@@ -101,7 +101,8 @@ export default {
         }
         this.question_no = this.curQuestions[this.question_index].question_no;
         this.question_index += 1;
-        if(this.question_index % (this.col * this.row)){
+        if(this.question_index % (this.col * this.row) == 0){
+          console.log(this.question_index);
           this.currentPage += 1;
           if((this.currentPage-1) % 10 == 0){
             this.question_index = 0;
@@ -144,7 +145,7 @@ export default {
             }
             this.curQuestions = response.data.questions;
         }).catch((error) =>{
-            //console.log(error);      //请求失败返回的数据
+            console.log(error);      //请求失败返回的数据
         });
       },
       updateCondition(newCondition){

@@ -193,7 +193,7 @@ def upload_Paper():
 # 		sql = "SELECT * FROM question WHERE "
 # 	return jsonify(1)
 
-
+# @cross_origin()
 @bp.route('/Fig', methods=('GET', 'POST', 'OPTIONS'))
 def upload_Fig():
 	mimetype = 'application/json'
@@ -237,6 +237,7 @@ def upload_Fig():
 			result = json.dumps({'state': 'callback参数不合法'})
 
 	res = make_response(result)
+	print(res)
 	res.mimetype = mimetype
 	res.headers['Access-Control-Allow-Origin'] = '*'
 	res.headers['Access-Control-Allow-Headers'] = 'X-Requested-With,X_Requested_With'

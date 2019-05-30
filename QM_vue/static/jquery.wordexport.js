@@ -1,6 +1,6 @@
 if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
-    (function ($) {
-        $.fn.wordExport = function (fileName) {
+    (function($) {
+        $.fn.wordExport = function(fileName) {
             fileName = typeof fileName !== 'undefined' ? fileName : "jQuery-Word-Export";
             var static = {
                 mhtml: {
@@ -12,47 +12,88 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
             var options = {
                 maxWidth: 624
             };
-            // Clone selected element before manipulating it  
+            // Clone selected element before manipulating it
             var markup = $(this).clone();
 
-            // Remove hidden elements from the output  
-            markup.each(function () {
+            // Remove hidden elements from the output
+            markup.each(function() {
                 var self = $(this);
                 if (self.is(':hidden'))
                     self.remove();
             });
 
-            // Embed all images using Data URLs  
+            // Embed all images using Data URLs
             var images = Array();
             var img = markup.find('img');
-            for (var i = 0; i < img.length; i++) {
-                // Calculate dimensions of output image  
-                var w = Math.min(img[i].width, options.maxWidth);
-                var h = img[i].height * (w / img[i].width);
-                var img_id = "#" + img[i].id;
-                $('<canvas>').attr("id", "test_word_img_" + i).width(w).height(h).insertAfter(img_id);
-                // Create canvas for converting image to data URL  
-                //var canvas = document.createElement("CANVAS");
-                //canvas.width = w;
-                //canvas.height = h;
-                //// Draw image to canvas  
-                //var context = canvas.getContext('2d');
-                //context.drawImage(img[i], 0, 0, w, h);
-                //// Get data URL encoding of image  
-                //var uri = canvas.toDataURL("image/png");
-                //$(img[i]).attr("src", img[i].src);
-                //img[i].width = w;
-                //img[i].height = h;
-                //// Save encoded image to array  
-                //images[i] = {
-                //    type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
-                //    encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
-                //    location: $(img[i]).attr("src"),
-                //    data: uri.substring(uri.indexOf(",") + 1)
-                //};
-            }
+            for (var i=0; i<img.length; i++){
 
-            // Prepare bottom of mhtml file with image data  
+            }
+            for (var i = 0; i < img.length; i++) {
+                img[i].onload = function() {
+                        var w = Math.min(img[i].width, options.maxWidth);
+                        console.log(img[i].width);
+                        var h = img[i].height * (w / img[i].width);
+                        img[i].crossOrigin = 'anonymous';
+                        // Calculate dimensions of output image
+                        img[i].src = img[i].src;
+                        
+                        // Create canvas for converting image to data UR
+                    img[i].onload = function(){
+                        var canvas = document.createElement("canvas");
+                        canvas.width = w;
+                        canvas.height = h;
+                        // Draw image to canvas
+                        // img[i].src = img[i].src;
+                        console.log('img',img[i]);
+                        var context = canvas.getContext('2d');
+                        context.drawImage(img[i], 0, 0, w, h);
+                        var uri = canvas.toDataURL("image/png/jpeg");
+                        img[i].src  = img[i].src
+                        img[i].width = w;
+                        img[i].height = h;
+                        // Save encoded image to array
+                        console.log('uri',uri);
+                        images[i] = {
+                            type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
+                            encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
+                            location: img[i].src,
+                            data: uri.substring(uri.indexOf(",") + 1)
+                        };
+                    }(i);
+
+                }(i);  
+
+                
+                // // Calculate dimensions of output image
+                // var w = Math.min(img[i].width, options.maxWidth);
+                // console.log(img[i].width);
+                // var h = img[i].height * (w / img[i].width);
+                // img[i].src = img[i].src;
+                // // Create canvas for converting image to data UR
+                // var canvas = document.createElement("CANVAS");
+                // canvas.width = w;
+                // canvas.height = h;
+                // // Draw image to canvas
+                // var context = canvas.getContext('2d');
+                // context.drawImage(img[i], 0, 0, w, h);
+                // console.log('weight&height',w,h);
+                // // Get data URL encoding of image
+                // var uri = canvas.toDataURL("image/png");
+                // $(img[i]).attr("src", img[i].src);
+                // img[i].width = w;
+                // img[i].height = h;
+                // // Save encoded image to array
+                // console.log('uri',uri);
+                // images[i] = {
+                //     type: uri.substring(uri.indexOf(":") + 1, uri.indexOf(";")),
+                //     encoding: uri.substring(uri.indexOf(";") + 1, uri.indexOf(",")),
+                //     location: $(img[i]).attr("src"),
+                //     data: uri.substring(uri.indexOf(",") + 1)
+                // };
+                // console.log('image', images[i])
+            }
+            console.log(images);
+            // Prepare bottom of mhtml file with image data
             var mhtmlBottom = "\n";
             for (var i = 0; i < images.length; i++) {
                 mhtmlBottom += "--NEXT.ITEM-BOUNDARY\n";
@@ -63,12 +104,13 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
             }
             mhtmlBottom += "--NEXT.ITEM-BOUNDARY--";
 
-            //TODO: load css from included stylesheet  
+            //TODO: load css from included stylesheet
             var styles = "p{font-size:14px}";
-            // Aggregate parts of the file together  
+
+            // Aggregate parts of the file together
             var fileContent = static.mhtml.top.replace("_html_", static.mhtml.head.replace("_styles_", styles) + static.mhtml.body.replace("_body_", markup.html())) + mhtmlBottom;
 
-            // Create a Blob with the file contents  
+            // Create a Blob with the file contents
             var blob = new Blob([fileContent], {
                 type: "application/msword;charset=utf-8"
             });
@@ -83,5 +125,3 @@ if (typeof jQuery !== "undefined" && typeof saveAs !== "undefined") {
         console.error("jQuery Word Export: missing dependency (FileSaver.js)");
     }
 }
-
-

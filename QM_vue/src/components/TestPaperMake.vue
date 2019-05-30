@@ -6,13 +6,13 @@
     <el-col :span="24" class="block">
     <div>
     <div class="block">
-    <el-button
+    <el-button style="margin-left:3%;"
           type="danger"
           size="mini"
           @click="handleCancle()"
           v-if="addVisible">取消
     </el-button>
-    <el-button
+    <el-button style="margin-left:3%;"
           type="success"
           size="mini"
           @click="handleAdd()"
