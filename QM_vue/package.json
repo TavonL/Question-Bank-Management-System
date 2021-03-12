@@ -21,7 +21,7 @@
     "highlight.js": "^9.15.6",
     "html-docx-js": "^0.3.1",
     "html2canvas": "^1.0.0-rc.1",
-    "jspdf": "^1.5.3",
+    "jspdf": "^2.3.1",
     "marked": "^0.6.2",
     "mavon-editor": "^2.7.4",
     "node-sass": "^4.11.0",
